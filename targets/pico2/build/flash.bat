@@ -1,0 +1,1 @@
+openocd -f flash.cfg

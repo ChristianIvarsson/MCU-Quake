@@ -1,0 +1,6 @@
+.vscode
+
+targets/pico2/build/*
+!targets/pico2/build/*.sh
+!targets/pico2/build/*.bat
+!targets/pico2/build/*.cfg

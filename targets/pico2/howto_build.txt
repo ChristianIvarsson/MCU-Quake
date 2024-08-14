@@ -1,0 +1,6 @@
+Change DPICO_BOARD to whatever you have. -You'll find another define in the cmake file that also needs changing
+
+cd build and type: cmake .. -G "Unix Makefiles" -DPICO_BOARD=PIMORONI_PICO_PLUS2_RP2350
+
+This will generate the required makefile
+After that you can just type make in the build folder
