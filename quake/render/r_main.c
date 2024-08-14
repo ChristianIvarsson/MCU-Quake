@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // r_main.c
 
-#include "quakedef.h"
+#include "../quakedef.h"
 #include "r_local.h"
 
 //define	PASSAGES
@@ -73,7 +73,7 @@ float		xscaleinv, yscaleinv;
 float		xscaleshrink, yscaleshrink;
 float		aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
 
-int		screenwidth;
+extern int		screenwidth;
 
 float	pixelAspect;
 float	screenAspect;
@@ -269,7 +269,8 @@ void R_NewMap (void)
 	// surface 0 doesn't really exist; it's just a dummy because index 0
 	// is used to indicate no edge attached to surface
 		surfaces--;
-		R_SurfacePatch ();
+		// Removed x86 junk
+		// R_SurfacePatch ();
 	}
 	else
 	{
@@ -898,7 +899,8 @@ void R_EdgeDrawing (void)
 	// surface 0 doesn't really exist; it's just a dummy because index 0
 	// is used to indicate no edge attached to surface
 		surfaces--;
-		R_SurfacePatch ();
+		// Removed x86 junk
+		// R_SurfacePatch ();
 	}
 
 	R_BeginEdgeFrame ();
@@ -950,10 +952,10 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-void R_RenderView_ (void)
-{
-	byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT];
+__RAM_1 byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT];
 
+void R_RenderView_ (void)
+{	
 	r_warpbuffer = warpbuffer;
 
 	if (r_timegraph.value || r_speeds.value || r_dspeeds.value)

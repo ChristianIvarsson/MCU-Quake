@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "quakedef.h"
+#include "../quakedef.h"
 #include "r_local.h"
 
 #define MAX_PARTICLES			2048	// default max # of particles at one
@@ -130,15 +130,17 @@ void R_EntityParticles (entity_t *ent)
 	float		sr, sp, sy, cr, cp, cy;
 	vec3_t		forward;
 	float		dist;
-	
-	dist = 64;
+
+	dist  = 64;
 	count = 50;
 
-if (!avelocities[0][0])
-{
-for (i=0 ; i<NUMVERTEXNORMALS*3 ; i++)
-avelocities[0][i] = (rand()&255) * 0.01;
-}
+	if ( avelocities[0][0] == 0 )
+	{
+		for ( i = 0; i < (NUMVERTEXNORMALS * 3); i++ )
+		{
+			((vec_t*)avelocities)[i] = (rand()&255) * 0.01;
+		}
+	}
 
 
 	for (i=0 ; i<NUMVERTEXNORMALS ; i++)

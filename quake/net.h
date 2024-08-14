@@ -177,7 +177,9 @@ typedef struct
 	int			(*SetSocketPort) (struct qsockaddr *addr, int port);
 } net_landriver_t;
 
+#ifndef MAX_NET_DRIVERS
 #define	MAX_NET_DRIVERS		8
+#endif
 extern int 				net_numlandrivers;
 extern net_landriver_t	net_landrivers[MAX_NET_DRIVERS];
 

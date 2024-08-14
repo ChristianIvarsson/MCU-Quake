@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // d_modech.c: called when mode has just changed
 
-#include "quakedef.h"
+#include "../quakedef.h"
 #include "d_local.h"
 
 int	d_vrectx, d_vrecty, d_vrectright_particle, d_vrectbottom_particle;

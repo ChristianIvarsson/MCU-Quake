@@ -17,23 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_vars.c: global refresh variables
+#include "../../../quake/quakedef.h"
 
-#include	"../quakedef.h"
-
-#if	!id386
-
-// all global and static refresh variables are collected in a contiguous block
-// to avoid cache conflicts.
-
-//-------------------------------------------------------
-// global refresh variables
-//-------------------------------------------------------
-
-// FIXME: make into one big structure, like cl or sv
-// FIXME: do separately for refresh engine and driver
-
-int	r_bmodelactive;
-
-#endif	// !id386
-
+void CDAudio_Play(byte track, qboolean looping) { }
+void CDAudio_Stop(void) { }
+void CDAudio_Pause(void) { }
+void CDAudio_Resume(void) { }
+void CDAudio_Update(void) { }
+int CDAudio_Init(void) { return 0; }
+void CDAudio_Shutdown(void) { }

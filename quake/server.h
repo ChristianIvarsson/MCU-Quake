@@ -145,20 +145,20 @@ typedef struct client_s
 #define	DAMAGE_AIM				2
 
 // edict->flags
-#define	FL_FLY					1
-#define	FL_SWIM					2
-//#define	FL_GLIMPSE				4
-#define	FL_CONVEYOR				4
-#define	FL_CLIENT				8
-#define	FL_INWATER				16
-#define	FL_MONSTER				32
-#define	FL_GODMODE				64
-#define	FL_NOTARGET				128
-#define	FL_ITEM					256
-#define	FL_ONGROUND				512
-#define	FL_PARTIALGROUND		1024	// not all corners are valid
-#define	FL_WATERJUMP			2048	// player jumping out of water
-#define	FL_JUMPRELEASED			4096	// for jump debouncing
+#define	FL_FLY					1U
+#define	FL_SWIM					2U
+//#define	FL_GLIMPSE				4U
+#define	FL_CONVEYOR				4U
+#define	FL_CLIENT				8U
+#define	FL_INWATER				16U
+#define	FL_MONSTER				32U
+#define	FL_GODMODE				64U
+#define	FL_NOTARGET				128U
+#define	FL_ITEM					256U
+#define	FL_ONGROUND				512U
+#define	FL_PARTIALGROUND		1024U	// not all corners are valid
+#define	FL_WATERJUMP			2048U	// player jumping out of water
+#define	FL_JUMPRELEASED			4096U	// for jump debouncing
 #ifdef QUAKE2
 #define FL_FLASHLIGHT			8192
 #define FL_ARCHIVE_OVERRIDE		1048576

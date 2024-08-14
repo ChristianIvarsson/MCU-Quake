@@ -11,7 +11,7 @@ pico_sdk_init()
 project(quake)
 
 # - - Define which board you have - -
-set(BOARD_TYPE PIMORONI_PICO_PLUS2_RP2350)
+# set(BOARD_TYPE PIMORONI_PICO_PLUS2_RP2350)
 
 # - - Set audio mode - -
 # set(AUDIO_PDM 1)
@@ -50,16 +50,33 @@ if(DEFINED RUNFROMSRAM)
 	add_compile_definitions(PICO_NO_FLASH=1)
 endif()
 
-add_compile_definitions(PICO_BOARD=${BOARD_TYPE})
+
+# add_compile_definitions(PICO_BOARD=${BOARD_TYPE})
+
+
+add_compile_definitions(
+    MAX_NET_DRIVERS=1
+)
+
+
+add_compile_options(-trigraphs)
 
 add_executable(${PROJECT_NAME})
 
 target_sources(
     ${PROJECT_NAME} PUBLIC
 	main.c
+    sys/sys_rp2.c
 
+    sys/video/video_common.c
 	${VIDEO_FILE}
+
+    sys/audio/audio_common.c
 	${AUDIO_FILE}
+
+    sys/input/input_common.c
+    sys/net/net_common.c
+    sys/cd_null.c
 
     ../../quake/render/d_surf.c
     ../../quake/render/d_edge.c
@@ -132,10 +149,13 @@ target_link_libraries(
 	pico_multicore
 	hardware_dma
 	hardware_pio
-if(DEFINED VIDEO_DVI)
-	libdvi
-endif
 )
+
+pico_set_linker_script(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pico2.ld)
+
+#if(DEFINED VIDEO_DVI)
+#	libdvi
+# endif
 
 if(NOT DEFINED RUNFROMSRAM)
 	pico_add_extra_outputs(${PROJECT_NAME})
@@ -144,7 +164,7 @@ else()
 endif()
 
 # Print debug strings over usb
-pico_enable_stdio_usb(${PROJECT_NAME} 1)
+# pico_enable_stdio_usb(${PROJECT_NAME} 1)
 
 # Print them over uart
 # pico_enable_stdio_uart(${PROJECT_NAME} 1)

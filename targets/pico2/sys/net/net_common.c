@@ -17,23 +17,29 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_vars.c: global refresh variables
+#include "../../../../quake/quakedef.h"
+#include "../../../../quake/net_loop.h"
 
-#include	"../quakedef.h"
+net_driver_t net_drivers[MAX_NET_DRIVERS] =
+{
+	{
+	"Loopback",
+	false,
+	Loop_Init,
+	Loop_Listen,
+	Loop_SearchForHosts,
+	Loop_Connect,
+	Loop_CheckNewConnections,
+	Loop_GetMessage,
+	Loop_SendMessage,
+	Loop_SendUnreliableMessage,
+	Loop_CanSendMessage,
+	Loop_CanSendUnreliableMessage,
+	Loop_Close,
+	Loop_Shutdown
+	}
+};
+int net_numdrivers = 1;
 
-#if	!id386
-
-// all global and static refresh variables are collected in a contiguous block
-// to avoid cache conflicts.
-
-//-------------------------------------------------------
-// global refresh variables
-//-------------------------------------------------------
-
-// FIXME: make into one big structure, like cl or sv
-// FIXME: do separately for refresh engine and driver
-
-int	r_bmodelactive;
-
-#endif	// !id386
-
+net_landriver_t	net_landrivers[MAX_NET_DRIVERS];
+int net_numlandrivers = 0;

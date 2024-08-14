@@ -17,23 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_vars.c: global refresh variables
+// in_null.c -- for systems without a mouse
 
-#include	"../quakedef.h"
+#include "../../../../quake/quakedef.h"
 
-#if	!id386
+void IN_Init (void)
+{
+}
 
-// all global and static refresh variables are collected in a contiguous block
-// to avoid cache conflicts.
+void IN_Shutdown (void)
+{
+}
 
-//-------------------------------------------------------
-// global refresh variables
-//-------------------------------------------------------
+void IN_Commands (void)
+{
+}
 
-// FIXME: make into one big structure, like cl or sv
-// FIXME: do separately for refresh engine and driver
-
-int	r_bmodelactive;
-
-#endif	// !id386
+void IN_Move (usercmd_t *cmd)
+{
+}
 

@@ -22,7 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // models are the only shared resource between a client and server running
 // on the same machine.
 
-#include "quakedef.h"
+#include <assert.h>
+
+#include "../quakedef.h"
 #include "r_local.h"
 
 model_t	*loadmodel;
@@ -565,6 +567,7 @@ void Mod_LoadVertexes (lump_t *l)
 	out = Hunk_AllocName ( count*sizeof(*out), loadname);	
 
 	loadmodel->vertexes = out;
+	assert(count < 65535);
 	loadmodel->numvertexes = count;
 
 	for ( i=0 ; i<count ; i++, in++, out++)
@@ -658,12 +661,16 @@ void Mod_LoadTexinfo (lump_t *l)
 	out = Hunk_AllocName ( count*sizeof(*out), loadname);	
 
 	loadmodel->texinfo = out;
+	assert(count < 65535);
 	loadmodel->numtexinfo = count;
 
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for ( i = 0; i < count; i++, in++, out++)
 	{
-		for (j=0 ; j<8 ; j++)
-			out->vecs[0][j] = LittleFloat (in->vecs[0][j]);
+		for ( j = 0; j < 8; j++ )
+		{
+			((float*)out->vecs)[j] = LittleFloat( ((float*)in->vecs)[j] );
+		}
+
 		len1 = Length (out->vecs[0]);
 		len2 = Length (out->vecs[1]);
 		len1 = (len1 + len2)/2;
