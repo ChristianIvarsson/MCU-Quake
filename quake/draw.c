@@ -53,6 +53,7 @@ int			menu_numcachepics;
 
 qpic_t	*Draw_PicFromWad (char *name)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return W_GetLumpName (name);
 }
 
@@ -66,7 +67,9 @@ qpic_t	*Draw_CachePic (char *path)
 	cachepic_t	*pic;
 	int			i;
 	qpic_t		*dat;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (pic=menu_cachepics, i=0 ; i<menu_numcachepics ; pic++, i++)
 		if (!strcmp (path, pic->name))
 			break;
@@ -109,7 +112,9 @@ Draw_Init
 */
 void Draw_Init (void)
 {
-	int		i;
+	// int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	draw_chars = W_GetLumpName ("conchars");
 	draw_disc = W_GetLumpName ("disc");
@@ -139,6 +144,8 @@ void Draw_Character (int x, int y, int num)
 	unsigned short	*pusdest;
 	int				drawline;	
 	int				row, col;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	num &= 255;
 	
@@ -230,6 +237,8 @@ Draw_String
 */
 void Draw_String (int x, int y, char *str)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (*str)
 	{
 		Draw_Character (x, y, *str);
@@ -254,6 +263,8 @@ void Draw_DebugChar (char num)
 	int				drawline;	
 	extern byte		*draw_chars;
 	int				row, col;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!vid.direct)
 		return;		// don't have direct FB access, so no debugchars...
@@ -291,6 +302,8 @@ void Draw_Pic (int x, int y, qpic_t *pic)
 	byte			*dest, *source;
 	unsigned short	*pusdest;
 	int				v, u;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if ((x < 0) ||
 		(x + pic->width > vid.width) ||
@@ -342,6 +355,8 @@ void Draw_TransPic (int x, int y, qpic_t *pic)
 	byte	*dest, *source, tbyte;
 	unsigned short	*pusdest;
 	int				v, u;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (x < 0 || (unsigned)(x + pic->width) > vid.width || y < 0 ||
 		 (unsigned)(y + pic->height) > vid.height)
@@ -430,6 +445,8 @@ void Draw_TransPicTranslate (int x, int y, qpic_t *pic, byte *translation)
 	unsigned short	*pusdest;
 	int				v, u;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (x < 0 || (unsigned)(x + pic->width) > vid.width || y < 0 ||
 		 (unsigned)(y + pic->height) > vid.height)
 	{
@@ -513,6 +530,8 @@ void Draw_CharToConback (int num, byte *dest)
 	int		drawline;
 	int		x;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	row = num>>4;
 	col = num&15;
 	source = draw_chars + (row<<10) + (col<<3);
@@ -544,6 +563,8 @@ void Draw_ConsoleBackground (int lines)
 	int				f, fstep;
 	qpic_t			*conback;
 	char			ver[100];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	conback = Draw_CachePic ("gfx/conback.lmp");
 
@@ -634,6 +655,8 @@ void R_DrawRect8 (vrect_t *prect, int rowbytes, byte *psrc,
 	int		i, j, srcdelta, destdelta;
 	byte	*pdest;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	pdest = vid.buffer + (prect->y * vid.rowbytes) + prect->x;
 
 	srcdelta = rowbytes - prect->width;
@@ -682,6 +705,8 @@ void R_DrawRect16 (vrect_t *prect, int rowbytes, byte *psrc,
 	byte			t;
 	int				i, j, srcdelta, destdelta;
 	unsigned short	*pdest;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // FIXME: would it be better to pre-expand native-format versions?
 
@@ -742,6 +767,8 @@ void Draw_TileClear (int x, int y, int w, int h)
 	int				width, height, tileoffsetx, tileoffsety;
 	byte			*psrc;
 	vrect_t			vr;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	r_rectdesc.rect.x = x;
 	r_rectdesc.rect.y = y;
@@ -816,6 +843,8 @@ void Draw_Fill (int x, int y, int w, int h, int c)
 	unsigned		uc;
 	int				u, v;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (r_pixbytes == 1)
 	{
 		dest = vid.buffer + y*vid.rowbytes + x;
@@ -845,6 +874,8 @@ void Draw_FadeScreen (void)
 {
 	int			x,y;
 	byte		*pbuf;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	VID_UnlockBuffer ();
 	S_ExtraUpdate ();
@@ -881,7 +912,7 @@ Call before beginning any disc IO.
 */
 void Draw_BeginDisc (void)
 {
-
+	DO_STACK_TRACE( __FUNCTION__ )
 	D_BeginDirectRect (vid.width - 24, 0, draw_disc->data, 24, 24);
 }
 
@@ -896,7 +927,7 @@ Call after completing any disc IO
 */
 void Draw_EndDisc (void)
 {
-
+	DO_STACK_TRACE( __FUNCTION__ )
 	D_EndDirectRect (vid.width - 24, 0, 24, 24);
 }
 

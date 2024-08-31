@@ -38,9 +38,10 @@ int r_skydirect;		// not used?
 
 // TODO: clean up these routines
 
-byte	bottomsky[128*131];
-byte	bottommask[128*131];
-byte	newsky[128*256];	// newsky and topsky both pack in here, 128 bytes
+__RAM_1 byte	bottomsky[128*131];  // 16768
+__RAM_1 byte	bottommask[128*131]; // 16768
+__RAM_1 byte	newsky[128*256];     // 32768	
+							// newsky and topsky both pack in here, 128 bytes
 							//  of newsky on the left of each scan, 128 bytes
 							//  of topsky on the right, because the low-level
 							//  drawers need 256-byte scan widths
@@ -57,6 +58,8 @@ void R_InitSky (texture_t *mt)
 {
 	int			i, j;
 	byte		*src;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	src = (byte *)mt + mt->offsets[0];
 
@@ -101,6 +104,8 @@ void R_MakeSky (void)
 	int			xshift, yshift;
 	unsigned	*pnewsky;
 	static int	xlast = -1, ylast = -1;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	xshift = skytime*skyspeed;
 	yshift = skytime*skyspeed;
@@ -166,6 +171,8 @@ void R_GenSkyTile (void *pdest)
 	unsigned	*pnewsky;
 	unsigned	*pd;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	xshift = skytime*skyspeed;
 	yshift = skytime*skyspeed;
 
@@ -225,6 +232,8 @@ void R_GenSkyTile16 (void *pdest)
 	byte			*pnewsky;
 	unsigned short	*pd;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	xshift = skytime * skyspeed;
 	yshift = skytime * skyspeed;
 
@@ -262,6 +271,8 @@ void R_SetSkyFrame (void)
 {
 	int		g, s1, s2;
 	float	temp;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	skyspeed = iskyspeed;
 	skyspeed2 = iskyspeed2;

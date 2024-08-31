@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 
-char *svc_strings[] =
+const char *svc_strings[] =
 {
 	"svc_bad",
 	"svc_nop",
@@ -78,6 +78,8 @@ This error checks and tracks the total number of entities
 */
 entity_t	*CL_EntityNum (int num)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (num >= cl.num_entities)
 	{
 		if (num >= MAX_EDICTS)
@@ -107,7 +109,9 @@ void CL_ParseStartSoundPacket(void)
     int 	field_mask;
     float 	attenuation;  
  	int		i;
-	           
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
     field_mask = MSG_ReadByte(); 
 
     if (field_mask & SND_VOLUME)
@@ -149,8 +153,10 @@ void CL_KeepaliveMessage (void)
 	static float lastmsg;
 	int		ret;
 	sizebuf_t	old;
-	byte		olddata[8192];
-	
+	static __RAM_1 byte		olddata[8192];
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (sv.active)
 		return;		// no need if server is local
 	if (cls.demoplayback)
@@ -206,9 +212,11 @@ void CL_ParseServerInfo (void)
 	char	*str;
 	int		i;
 	int		nummodels, numsounds;
-	char	model_precache[MAX_MODELS][MAX_QPATH];
-	char	sound_precache[MAX_SOUNDS][MAX_QPATH];
-	
+	static __RAM_1 char	model_precache[MAX_MODELS][MAX_QPATH];
+	static __RAM_1 char	sound_precache[MAX_SOUNDS][MAX_QPATH];
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_DPrintf ("Serverinfo packet received.\n");
 //
 // wipe the client_state_t struct
@@ -335,7 +343,9 @@ void CL_ParseUpdate (int bits)
 	qboolean	forcelink;
 	entity_t	*ent;
 	int			num;
-	int			skin;
+	// int			skin;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cls.signon == SIGNONS - 1)
 	{	// first update is the final signon stage
@@ -356,9 +366,11 @@ void CL_ParseUpdate (int bits)
 
 	ent = CL_EntityNum (num);
 
-for (i=0 ; i<16 ; i++)
-if (bits&(1<<i))
-	bitcounts[i]++;
+	for (i=0 ; i<16 ; i++)
+	{
+		if (bits&(1<<i))
+			bitcounts[i]++;
+	}
 
 	if (ent->msgtime != cl.mtime[1])
 		forcelink = true;	// no previous frame to lerp from
@@ -491,7 +503,9 @@ CL_ParseBaseline
 void CL_ParseBaseline (entity_t *ent)
 {
 	int			i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	ent->baseline.modelindex = MSG_ReadByte ();
 	ent->baseline.frame = MSG_ReadByte ();
 	ent->baseline.colormap = MSG_ReadByte();
@@ -514,7 +528,9 @@ Server information pertaining to this client only
 void CL_ParseClientdata (int bits)
 {
 	int		i, j;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (bits & SU_VIEWHEIGHT)
 		cl.viewheight = MSG_ReadChar ();
 	else
@@ -632,7 +648,9 @@ void CL_NewTranslation (int slot)
 	int		i, j;
 	int		top, bottom;
 	byte	*dest, *source;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (slot > cl.maxclients)
 		Sys_Error ("CL_NewTranslation: slot > cl.maxclients");
 	dest = cl.scores[slot].translations;
@@ -669,7 +687,9 @@ void CL_ParseStatic (void)
 {
 	entity_t *ent;
 	int		i;
-		
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	i = cl.num_statics;
 	if (i >= MAX_STATIC_ENTITIES)
 		Host_Error ("Too many static entities");
@@ -699,7 +719,9 @@ void CL_ParseStaticSound (void)
 	vec3_t		org;
 	int			sound_num, vol, atten;
 	int			i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<3 ; i++)
 		org[i] = MSG_ReadCoord ();
 	sound_num = MSG_ReadByte ();
@@ -721,7 +743,8 @@ void CL_ParseServerMessage (void)
 {
 	int			cmd;
 	int			i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
 //
 // if recording demos, copy the message out
 //

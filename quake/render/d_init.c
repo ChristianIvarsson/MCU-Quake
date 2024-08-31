@@ -47,6 +47,7 @@ D_Init
 */
 void D_Init (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	r_skydirect = 1;
 
@@ -69,6 +70,7 @@ D_CopyRects
 */
 void D_CopyRects (vrect_t *prects, int transparent)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // this function is only required if the CPU doesn't have direct access to the
 // back buffer, and there's some driver interface function that the driver
@@ -88,6 +90,7 @@ D_EnableBackBufferAccess
 */
 void D_EnableBackBufferAccess (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	VID_LockBuffer ();
 }
 
@@ -99,6 +102,7 @@ D_TurnZOn
 */
 void D_TurnZOn (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 // not needed for software version
 }
 
@@ -110,6 +114,7 @@ D_DisableBackBufferAccess
 */
 void D_DisableBackBufferAccess (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	VID_UnlockBuffer ();
 }
 
@@ -122,6 +127,8 @@ D_SetupFrame
 void D_SetupFrame (void)
 {
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (r_dowarp)
 		d_viewbuffer = r_warpbuffer;
@@ -165,7 +172,7 @@ D_UpdateRects
 */
 void D_UpdateRects (vrect_t *prect)
 {
-
+	DO_STACK_TRACE( __FUNCTION__ )
 // the software driver draws these directly to the vid buffer
 
 	UNUSED(prect);

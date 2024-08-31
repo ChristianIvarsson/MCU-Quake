@@ -89,6 +89,8 @@ for a few moments
 */
 void SCR_CenterPrint (char *str)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	strncpy (scr_centerstring, str, sizeof(scr_centerstring)-1);
 	scr_centertime_off = scr_centertime.value;
 	scr_centertime_start = cl.time;
@@ -106,6 +108,8 @@ void SCR_CenterPrint (char *str)
 void SCR_EraseCenterString (void)
 {
 	int		y;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (scr_erase_center++ > vid.numpages)
 	{
@@ -129,6 +133,8 @@ void SCR_DrawCenterString (void)
 	int		j;
 	int		x, y;
 	int		remaining;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // the finale prints the characters one at a time
 	if (cl.intermission)
@@ -171,6 +177,8 @@ void SCR_DrawCenterString (void)
 
 void SCR_CheckDrawCenterString (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	scr_copytop = 1;
 	if (scr_center_lines > scr_erase_lines)
 		scr_erase_lines = scr_center_lines;
@@ -194,19 +202,21 @@ CalcFov
 */
 float CalcFov (float fov_x, float width, float height)
 {
-        float   a;
-        float   x;
+    float   a;
+    float   x;
 
-        if (fov_x < 1 || fov_x > 179)
-                Sys_Error ("Bad fov: %f", fov_x);
+	DO_STACK_TRACE( __FUNCTION__ )
 
-        x = width/tan(fov_x/360*M_PI);
+    if (fov_x < 1 || fov_x > 179)
+        Sys_Error ("Bad fov: %f", fov_x);
 
-        a = atan (height/x);
+    x = width/tan(fov_x/360*M_PI);
 
-        a = a*360/M_PI;
+    a = atan (height/x);
 
-        return a;
+    a = a*360/M_PI;
+
+    return a;
 }
 
 /*
@@ -221,6 +231,8 @@ static void SCR_CalcRefdef (void)
 {
 	vrect_t		vrect;
 	float		size;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	scr_fullupdate = 0;		// force a background redraw
 	vid.recalc_refdef = 0;
@@ -286,6 +298,8 @@ Keybinding command
 */
 void SCR_SizeUp_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Cvar_SetValue ("viewsize",scr_viewsize.value+10);
 	vid.recalc_refdef = 1;
 }
@@ -300,6 +314,8 @@ Keybinding command
 */
 void SCR_SizeDown_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Cvar_SetValue ("viewsize",scr_viewsize.value-10);
 	vid.recalc_refdef = 1;
 }
@@ -313,6 +329,8 @@ SCR_Init
 */
 void SCR_Init (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Cvar_RegisterVariable (&scr_fov);
 	Cvar_RegisterVariable (&scr_viewsize);
 	Cvar_RegisterVariable (&scr_conspeed);
@@ -345,6 +363,8 @@ SCR_DrawRam
 */
 void SCR_DrawRam (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!scr_showram.value)
 		return;
 
@@ -362,7 +382,9 @@ SCR_DrawTurtle
 void SCR_DrawTurtle (void)
 {
 	static int	count;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!scr_showturtle.value)
 		return;
 
@@ -386,6 +408,8 @@ SCR_DrawNet
 */
 void SCR_DrawNet (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (realtime - cl.last_received_message < 0.3)
 		return;
 	if (cls.demoplayback)
@@ -402,6 +426,8 @@ DrawPause
 void SCR_DrawPause (void)
 {
 	qpic_t	*pic;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!scr_showpause.value)		// turn off for screenshots
 		return;
@@ -425,6 +451,8 @@ void SCR_DrawLoading (void)
 {
 	qpic_t	*pic;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!scr_drawloading)
 		return;
 		
@@ -445,6 +473,8 @@ SCR_SetUpToDrawConsole
 */
 void SCR_SetUpToDrawConsole (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_CheckResize ();
 	
 	if (scr_drawloading)
@@ -499,6 +529,8 @@ SCR_DrawConsole
 */
 void SCR_DrawConsole (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (scr_con_current)
 	{
 		scr_copyeverything = 1;
@@ -550,7 +582,9 @@ void WritePCXfile (char *filename, byte *data, int width, int height,
 	int		i, j, length;
 	pcx_t	*pcx;
 	byte		*pack;
-	  
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	pcx = Hunk_TempAlloc (width*height*2+1000);
 	if (pcx == NULL)
 	{
@@ -616,6 +650,8 @@ void SCR_ScreenShot_f (void)
 	char		pcxname[80]; 
 	char		checkname[MAX_OSPATH];
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // 
 // find a file name to save it to 
 // 
@@ -625,7 +661,11 @@ void SCR_ScreenShot_f (void)
 	{ 
 		pcxname[5] = i/10 + '0'; 
 		pcxname[6] = i%10 + '0'; 
-		sprintf (checkname, "%s/%s", com_gamedir, pcxname);
+		if ( snprintf (checkname, sizeof(checkname), "%s/%s", com_gamedir, pcxname) > 0 )
+		{
+			Sys_Printf("checkname had to be truncated\n");
+		}
+
 		if (Sys_FileTime(checkname) == -1)
 			break;	// file doesn't exist
 	} 
@@ -662,6 +702,8 @@ SCR_BeginLoadingPlaque
 */
 void SCR_BeginLoadingPlaque (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	S_StopAllSounds (true);
 
 	if (cls.state != ca_connected)
@@ -693,6 +735,8 @@ SCR_EndLoadingPlaque
 */
 void SCR_EndLoadingPlaque (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	scr_disabled_for_loading = false;
 	scr_fullupdate = 0;
 	Con_ClearNotify ();
@@ -709,6 +753,8 @@ void SCR_DrawNotifyString (void)
 	int		l;
 	int		j;
 	int		x, y;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	start = scr_notifystring;
 
@@ -745,6 +791,8 @@ keypress.
 */
 int SCR_ModalMessage (char *text)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.state == ca_dedicated)
 		return true;
 
@@ -783,7 +831,9 @@ Brings the console down and fades the palettes back to normal
 void SCR_BringDownConsole (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	scr_centertime_off = 0;
 	
 	for (i=0 ; i<20 && scr_conlines != scr_con_current ; i++)
@@ -810,7 +860,9 @@ void SCR_UpdateScreen (void)
 	static float	oldscr_viewsize;
 	static float	oldlcd_x;
 	vrect_t		vrect;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (scr_skipupdate || block_drawing)
 		return;
 
@@ -986,6 +1038,8 @@ SCR_UpdateWholeScreen
 */
 void SCR_UpdateWholeScreen (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	scr_fullupdate = 0;
 	SCR_UpdateScreen ();
 }

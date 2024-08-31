@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 int			num_temp_entities;
-entity_t	cl_temp_entities[MAX_TEMP_ENTITIES];
-beam_t		cl_beams[MAX_BEAMS];
+__RAM_1 entity_t	cl_temp_entities[MAX_TEMP_ENTITIES];
+__RAM_1 beam_t		cl_beams[MAX_BEAMS];
 
 sfx_t			*cl_sfx_wizhit;
 sfx_t			*cl_sfx_knighthit;
@@ -44,6 +44,8 @@ CL_ParseTEnt
 */
 void CL_InitTEnts (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	cl_sfx_wizhit = S_PrecacheSound ("wizard/hit.wav");
 	cl_sfx_knighthit = S_PrecacheSound ("hknight/hit.wav");
 	cl_sfx_tink1 = S_PrecacheSound ("weapons/tink1.wav");
@@ -68,7 +70,9 @@ void CL_ParseBeam (model_t *m)
 	vec3_t	start, end;
 	beam_t	*b;
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = MSG_ReadShort ();
 	
 	start[0] = MSG_ReadCoord ();
@@ -122,6 +126,8 @@ void CL_ParseTEnt (void)
 	dlight_t	*dl;
 	int		rnd;
 	int		colorStart, colorLength;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	type = MSG_ReadByte ();
 	switch (type)
@@ -302,6 +308,8 @@ entity_t *CL_NewTempEntity (void)
 {
 	entity_t	*ent;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cl_numvisedicts == MAX_VISEDICTS)
 		return NULL;
 	if (num_temp_entities == MAX_TEMP_ENTITIES)
@@ -331,6 +339,8 @@ void CL_UpdateTEnts (void)
 	entity_t	*ent;
 	float		yaw, pitch;
 	float		forward;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	num_temp_entities = 0;
 

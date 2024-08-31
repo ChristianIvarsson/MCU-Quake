@@ -32,6 +32,8 @@ void R_CheckVariables (void)
 {
 	static float	oldbright;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (r_fullbright.value != oldbright)
 	{
 		oldbright = r_fullbright.value;
@@ -50,6 +52,8 @@ Debugging use
 void Show (void)
 {
 	vrect_t	vr;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	vr.x = vr.y = 0;
 	vr.width = vid.width;
@@ -72,6 +76,8 @@ void R_TimeRefresh_f (void)
 	float		start, stop, time;
 	int			startangle;
 	vrect_t		vr;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	startangle = r_refdef.viewangles[1];
 	
@@ -114,6 +120,8 @@ void R_LineGraph (int x, int y, int h)
 	byte	*dest;
 	int		s;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // FIXME: should be disabled on no-buffer adapters, or should be in the driver
 	
 	x += r_refdef.vrect.x;
@@ -154,7 +162,9 @@ void R_TimeGraph (void)
 	float	r_time2;
 	static byte	r_timings[MAX_TIMINGS];
 	int		x;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_time2 = Sys_FloatTime ();
 
 	a = (r_time2-r_time1)/0.01;
@@ -196,6 +206,8 @@ void R_PrintTimes (void)
 	float	r_time2;
 	float		ms;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_time2 = Sys_FloatTime ();
 
 	ms = 1000* (r_time2 - r_time1);
@@ -214,6 +226,8 @@ R_PrintDSpeeds
 void R_PrintDSpeeds (void)
 {
 	float	ms, dp_time, r_time2, rw_time, db_time, se_time, de_time, dv_time;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	r_time2 = Sys_FloatTime ();
 
@@ -238,6 +252,7 @@ R_PrintAliasStats
 */
 void R_PrintAliasStats (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	Con_Printf ("%3i polygon model drawn\n", r_amodels_drawn);
 }
 
@@ -247,7 +262,9 @@ void WarpPalette (void)
 	int		i,j;
 	byte	newpalette[768];
 	int		basecolor[3];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	basecolor[0] = 130;
 	basecolor[1] = 80;
 	basecolor[2] = 50;
@@ -274,7 +291,9 @@ void R_TransformFrustum (void)
 {
 	int		i;
 	vec3_t	v, v2;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<4 ; i++)
 	{
 		v[0] = screenedge[i].normal[2];
@@ -301,6 +320,7 @@ TransformVector
 */
 void TransformVector (vec3_t in, vec3_t out)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	out[0] = DotProduct(in,vright);
 	out[1] = DotProduct(in,vup);
 	out[2] = DotProduct(in,vpn);		
@@ -317,7 +337,9 @@ R_TransformPlane
 void R_TransformPlane (mplane_t *p, float *normal, float *dist)
 {
 	float	d;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	d = DotProduct (r_origin, p->normal);
 	*dist = p->dist - d;
 // TODO: when we have rotating entities, this will need to use the view matrix
@@ -333,6 +355,8 @@ R_SetUpFrustumIndexes
 void R_SetUpFrustumIndexes (void)
 {
 	int		i, j, *pindex;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pindex = r_frustum_indexes;
 
@@ -369,6 +393,8 @@ void R_SetupFrame (void)
 	int				edgecount;
 	vrect_t			vrect;
 	float			w, h;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // don't allow cheats in multiplayer
 	if (cl.maxclients > 1)

@@ -44,14 +44,14 @@ cvar_t	m_side = {"m_side","0.8", true};
 client_static_t	cls;
 client_state_t	cl;
 // FIXME: put these on hunk?
-efrag_t			cl_efrags[MAX_EFRAGS];
-entity_t		cl_entities[MAX_EDICTS];
-entity_t		cl_static_entities[MAX_STATIC_ENTITIES];
-lightstyle_t	cl_lightstyle[MAX_LIGHTSTYLES];
-dlight_t		cl_dlights[MAX_DLIGHTS];
+__RAM_1 efrag_t			cl_efrags[MAX_EFRAGS];
+__RAM_1 entity_t		cl_entities[MAX_EDICTS];
+__RAM_1 entity_t		cl_static_entities[MAX_STATIC_ENTITIES];
+__RAM_1 lightstyle_t	cl_lightstyle[MAX_LIGHTSTYLES];
+__RAM_1 dlight_t		cl_dlights[MAX_DLIGHTS];
 
 int				cl_numvisedicts;
-entity_t		*cl_visedicts[MAX_VISEDICTS];
+__RAM_1 entity_t		*cl_visedicts[MAX_VISEDICTS];
 
 /*
 =====================
@@ -62,6 +62,8 @@ CL_ClearState
 void CL_ClearState (void)
 {
 	int			i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!sv.active)
 		Host_ClearMemory ();
@@ -98,9 +100,11 @@ This is also called on Host_Error, so it shouldn't cause any errors
 */
 void CL_Disconnect (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // stop sounds (especially looping!)
 	S_StopAllSounds (true);
-	
+
 // bring the console down and fade the colors back to normal
 //	SCR_BringDownConsole ();
 
@@ -147,6 +151,8 @@ Host should be either "local" or a net address to be passed on
 */
 void CL_EstablishConnection (char *host)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.state == ca_dedicated)
 		return;
 
@@ -174,7 +180,7 @@ An svc_signonnum has been received, perform a client side setup
 */
 void CL_SignonReply (void)
 {
-	char 	str[8192];
+	static __RAM_1 char 	str[8192];
 
 Con_DPrintf ("CL_SignonReply: %i\n", cls.signon);
 
@@ -218,7 +224,7 @@ Called to play the next demo in the demo loop
 */
 void CL_NextDemo (void)
 {
-	char	str[1024];
+	char str[ 1024 ];
 
 	if (cls.demonum == -1)
 		return;		// don't play demos

@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cvar.c -- dynamic variable tracking
 
 #include "quakedef.h"
+#include "qfile.h"
 
 cvar_t	*cvar_vars;
 char	*cvar_null_string = "";
@@ -32,7 +33,9 @@ Cvar_FindVar
 cvar_t *Cvar_FindVar (const char *var_name)
 {
 	cvar_t	*var;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (var=cvar_vars ; var ; var=var->next)
 		if (!Q_strcmp (var_name, var->name))
 			return var;
@@ -48,7 +51,9 @@ Cvar_VariableValue
 float	Cvar_VariableValue (const char *var_name)
 {
 	cvar_t	*var;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return 0;
@@ -64,7 +69,9 @@ Cvar_VariableString
 char *Cvar_VariableString (const char *var_name)
 {
 	cvar_t *var;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return cvar_null_string;
@@ -81,7 +88,9 @@ const char *Cvar_CompleteVariable (const char *partial)
 {
 	cvar_t		*cvar;
 	int			len;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	len = Q_strlen(partial);
 	
 	if (!len)
@@ -105,7 +114,9 @@ void Cvar_Set (const char *var_name, char *value)
 {
 	cvar_t	*var;
 	qboolean changed;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	var = Cvar_FindVar (var_name);
 	if (!var)
 	{	// there is an error in C code if this happens
@@ -135,7 +146,9 @@ Cvar_SetValue
 void Cvar_SetValue (const char *var_name, float value)
 {
 	char	val[32];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	sprintf (val, "%f",value);
 	Cvar_Set (var_name, val);
 }
@@ -151,7 +164,9 @@ Adds a freestanding variable to the variable list.
 void Cvar_RegisterVariable (cvar_t *variable)
 {
 	char	*oldstr;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // first check to see if it has allready been defined
 	if (Cvar_FindVar (variable->name))
 	{
@@ -188,6 +203,8 @@ qboolean	Cvar_Command (void)
 {
 	cvar_t			*v;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // check variables
 	v = Cvar_FindVar (Cmd_Argv(0));
 	if (!v)
@@ -213,12 +230,14 @@ Writes lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 */
-void Cvar_WriteVariables (FILE *f)
+void Cvar_WriteVariables (QFILE *f)
 {
 	cvar_t	*var;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (var = cvar_vars ; var ; var = var->next)
 		if (var->archive)
-			fprintf (f, "%s \"%s\"\n", var->name, var->string);
+			Qfprintf (f, "%s \"%s\"\n", var->name, var->string);
 }
 

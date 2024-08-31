@@ -97,7 +97,9 @@ qboolean R_AliasCheckBBox (void)
 	qboolean			zclipped, zfullyclipped;
 	unsigned			anyclip, allclip;
 	int					minz;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // expand, rotate, and translate points into worldspace
 
 	currententity->trivial_accept = 0;
@@ -252,6 +254,7 @@ R_AliasTransformVector
 */
 void R_AliasTransformVector (vec3_t in, vec3_t out)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	out[0] = DotProduct(in, aliastransform[0]) + aliastransform[0][3];
 	out[1] = DotProduct(in, aliastransform[1]) + aliastransform[1][3];
 	out[2] = DotProduct(in, aliastransform[2]) + aliastransform[2][3];
@@ -273,6 +276,8 @@ void R_AliasPreparePoints (void)
 	auxvert_t	*av;
 	mtriangle_t	*ptri;
 	finalvert_t	*pfv[3];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pstverts = (stvert_t *)((byte *)paliashdr + paliashdr->stverts);
 	r_anumverts = pmdl->numverts;
@@ -341,6 +346,8 @@ void R_AliasSetUpTransform (int trivial_accept)
 	static float	tmatrix[3][4];
 	static float	viewmatrix[3][4];
 	vec3_t			angles;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // TODO: should really be stored with the entity instead of being reconstructed
 // TODO: should use a look-up table
@@ -418,6 +425,8 @@ void R_AliasTransformFinalVert (finalvert_t *fv, auxvert_t *av,
 	int		temp;
 	float	lightcos, *plightnormal;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	av->fv[0] = DotProduct(pverts->v, aliastransform[0]) +
 			aliastransform[0][3];
 	av->fv[1] = DotProduct(pverts->v, aliastransform[1]) +
@@ -461,6 +470,8 @@ void R_AliasTransformAndProjectFinalVerts (finalvert_t *fv, stvert_t *pstverts)
 	int			i, temp;
 	float		lightcos, *plightnormal, zi;
 	trivertx_t	*pverts;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pverts = r_apverts;
 
@@ -515,6 +526,8 @@ void R_AliasProjectFinalVert (finalvert_t *fv, auxvert_t *av)
 {
 	float	zi;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // project points
 	zi = 1.0 / av->fv[2];
 
@@ -534,6 +547,8 @@ void R_AliasPrepareUnclippedPoints (void)
 {
 	stvert_t	*pstverts;
 	finalvert_t	*fv;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pstverts = (stvert_t *)((byte *)paliashdr + paliashdr->stverts);
 	r_anumverts = pmdl->numverts;
@@ -565,6 +580,8 @@ void R_AliasSetupSkin (void)
 	maliasskingroup_t	*paliasskingroup;
 	float				*pskinintervals, fullskininterval;
 	float				skintargettime, skintime;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	skinnum = currententity->skinnum;
 	if ((skinnum >= pmdl->numskins) || (skinnum < 0))
@@ -616,7 +633,7 @@ R_AliasSetupLighting
 */
 void R_AliasSetupLighting (alight_t *plighting)
 {
-
+	DO_STACK_TRACE( __FUNCTION__ )
 // guarantee that no vertex will ever be lit below LIGHT_MIN, so we don't have
 // to clamp off the bottom
 	r_ambientlight = plighting->ambientlight;
@@ -655,6 +672,8 @@ void R_AliasSetupFrame (void)
 	int				i, numframes;
 	maliasgroup_t	*paliasgroup;
 	float			*pintervals, fullinterval, targettime, time;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	frame = currententity->frame;
 	if ((frame >= pmdl->numframes) || (frame < 0))
@@ -702,9 +721,11 @@ R_AliasDrawModel
 */
 void R_AliasDrawModel (alight_t *plighting)
 {
-	finalvert_t		finalverts[MAXALIASVERTS +
+	static __RAM_1 finalvert_t		finalverts[MAXALIASVERTS +
 						((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
-	auxvert_t		auxverts[MAXALIASVERTS];
+	static __RAM_1 auxvert_t		auxverts[MAXALIASVERTS];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	r_amodels_drawn++;
 

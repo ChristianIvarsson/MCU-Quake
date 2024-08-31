@@ -39,7 +39,7 @@ vec3_t			r_worldmodelorg;
 
 int				r_currentbkey;
 
-typedef enum {touchessolid, drawnode, nodrawnode} solidstate_t;
+// typedef enum {touchessolid, drawnode, nodrawnode} u32solidstate_t;
 
 #define MAX_BMODEL_VERTS	500			// 6K
 #define MAX_BMODEL_EDGES	1000		// 12K
@@ -64,6 +64,8 @@ void R_EntityRotate (vec3_t vec)
 {
 	vec3_t	tvec;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	VectorCopy (vec, tvec);
 	vec[0] = DotProduct (entity_rotation[0], tvec);
 	vec[1] = DotProduct (entity_rotation[1], tvec);
@@ -79,6 +81,8 @@ R_RotateBmodel
 void R_RotateBmodel (void)
 {
 	float	angle, s, c, temp1[3][3], temp2[3][3], temp3[3][3];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // TODO: should use a look-up table
 // TODO: should really be stored with the entity instead of being reconstructed
@@ -163,6 +167,8 @@ void R_RecursiveClipBPoly (bedge_t *pedges, mnode_t *pnode, msurface_t *psurf)
 	mplane_t	*splitplane, tplane;
 	mvertex_t	*pvert, *plastvert, *ptvert;
 	mnode_t		*pn;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	psideedges[0] = psideedges[1] = NULL;
 
@@ -332,10 +338,11 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 	msurface_t	*psurf;
 	int			numsurfaces;
 	mplane_t	*pplane;
-	mvertex_t	bverts[MAX_BMODEL_VERTS];
-	bedge_t		bedges[MAX_BMODEL_EDGES], *pbedge;
-	medge_t		*pedge, *pedges;
+	static __RAM_1 mvertex_t	bverts[MAX_BMODEL_VERTS];
+	static __RAM_1 bedge_t		bedges[MAX_BMODEL_EDGES], *pbedge;
+	static __RAM_1 medge_t		*pedge, *pedges;
 
+	DO_STACK_TRACE( __FUNCTION__ )
 // FIXME: use bounding-box-based frustum clipping info?
 
 	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
@@ -415,6 +422,7 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
 	int			numsurfaces;
 	mplane_t	*pplane;
 
+	DO_STACK_TRACE( __FUNCTION__ )
 // FIXME: use bounding-box-based frustum clipping info?
 
 	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
@@ -453,6 +461,8 @@ void R_RecursiveWorldNode (mnode_t *node, int clipflags)
 	msurface_t	*surf, **mark;
 	mleaf_t		*pleaf;
 	double		d, dot;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (node->contents == CONTENTS_SOLID)
 		return;		// solid
@@ -649,7 +659,9 @@ void R_RenderWorld (void)
 {
 	int			i;
 	model_t		*clmodel;
-	btofpoly_t	btofpolys[MAX_BTOFPOLYS];
+	static __RAM_1 btofpoly_t	btofpolys[MAX_BTOFPOLYS];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pbtofpolys = btofpolys;
 

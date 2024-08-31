@@ -30,6 +30,7 @@ D_EndParticles
 */
 void D_EndParticles (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 // not used by software driver
 }
 
@@ -41,6 +42,7 @@ D_StartParticles
 */
 void D_StartParticles (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 // not used by software driver
 }
 
@@ -59,6 +61,8 @@ void D_DrawParticle (particle_t *pparticle)
 	byte	*pdest;
 	short	*pz;
 	int		i, izi, pix, count, u, v;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // transform point
 	VectorSubtract (pparticle->org, r_origin, local);

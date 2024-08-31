@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <math.h>
 #include <string.h>
 
@@ -42,6 +43,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #endif
 
+#include <stdio.h>
+#include <stdint.h>
+
 #define ALIAS_VERSION	6
 
 #define ALIAS_ONSEAM				0x0020
@@ -49,12 +53,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // must match definition in spritegn.h
 #ifndef SYNCTYPE_T
 #define SYNCTYPE_T
-typedef enum {ST_SYNC=0, ST_RAND } synctype_t;
+typedef enum {ST_SYNC=0, ST_RAND } u32synctype_t;
 #endif
 
-typedef enum { ALIAS_SINGLE=0, ALIAS_GROUP } aliasframetype_t;
+typedef enum { ALIAS_SINGLE=0, ALIAS_GROUP } u32aliasframetype_t;
 
-typedef enum { ALIAS_SKIN_SINGLE=0, ALIAS_SKIN_GROUP } aliasskintype_t;
+typedef enum { ALIAS_SKIN_SINGLE=0, ALIAS_SKIN_GROUP } u32aliasskintype_t;
 
 typedef struct {
 	int			ident;
@@ -69,7 +73,8 @@ typedef struct {
 	int			numverts;
 	int			numtris;
 	int			numframes;
-	synctype_t	synctype;
+	uint32_t    synctype;
+	// synctype_t	synctype;
 	int			flags;
 	float		size;
 } mdl_t;
@@ -121,12 +126,13 @@ typedef struct {
 	float	interval;
 } daliasskininterval_t;
 
+// Default size is 4 but some compilers does weird shit and everything goes south
 typedef struct {
-	aliasframetype_t	type;
+	uint32_t	type;
 } daliasframetype_t;
 
 typedef struct {
-	aliasskintype_t	type;
+	uint32_t	type;
 } daliasskintype_t;
 
 #define IDPOLYHEADER	(('O'<<24)+('P'<<16)+('D'<<8)+'I')

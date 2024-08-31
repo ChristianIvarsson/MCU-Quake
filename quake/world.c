@@ -70,6 +70,8 @@ void SV_InitBoxHull (void)
 	int		i;
 	int		side;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	box_hull.clipnodes = box_clipnodes;
 	box_hull.planes = box_planes;
 	box_hull.firstclipnode = 0;
@@ -104,6 +106,7 @@ BSP trees instead of being compared directly.
 */
 hull_t	*SV_HullForBox (vec3_t mins, vec3_t maxs)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	box_planes[0].dist = maxs[0];
 	box_planes[1].dist = mins[0];
 	box_planes[2].dist = maxs[1];
@@ -132,6 +135,8 @@ hull_t *SV_HullForEntity (edict_t *ent, vec3_t mins, vec3_t maxs, vec3_t offset)
 	vec3_t		size;
 	vec3_t		hullmins, hullmaxs;
 	hull_t		*hull;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // decide which clipping hull to use, based on the size
 	if (ent->v.solid == SOLID_BSP)
@@ -205,6 +210,8 @@ areanode_t *SV_CreateAreaNode (int depth, vec3_t mins, vec3_t maxs)
 	vec3_t		size;
 	vec3_t		mins1, maxs1, mins2, maxs2;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	anode = &sv_areanodes[sv_numareanodes];
 	sv_numareanodes++;
 
@@ -246,6 +253,8 @@ SV_ClearWorld
 */
 void SV_ClearWorld (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	SV_InitBoxHull ();
 	
 	memset (sv_areanodes, 0, sizeof(sv_areanodes));
@@ -262,6 +271,7 @@ SV_UnlinkEdict
 */
 void SV_UnlinkEdict (edict_t *ent)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (!ent->area.prev)
 		return;		// not linked in anywhere
 	RemoveLink (&ent->area);
@@ -279,6 +289,8 @@ void SV_TouchLinks ( edict_t *ent, areanode_t *node )
 	link_t		*l, *next;
 	edict_t		*touch;
 	int			old_self, old_other;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // touch linked edicts
 	for (l = node->trigger_edicts.next ; l != &node->trigger_edicts ; l = next)
@@ -332,6 +344,8 @@ void SV_FindTouchedLeafs (edict_t *ent, mnode_t *node)
 	int			sides;
 	int			leafnum;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (node->contents == CONTENTS_SOLID)
 		return;
 	
@@ -372,6 +386,8 @@ SV_LinkEdict
 void SV_LinkEdict (edict_t *ent, qboolean touch_triggers)
 {
 	areanode_t	*node;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (ent->area.prev)
 		SV_UnlinkEdict (ent);	// unlink from old position
@@ -494,6 +510,8 @@ int SV_HullPointContents (hull_t *hull, int num, vec3_t p)
 	dclipnode_t	*node;
 	mplane_t	*plane;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	while (num >= 0)
 	{
 		if (num < hull->firstclipnode || num > hull->lastclipnode)
@@ -528,6 +546,8 @@ int SV_PointContents (vec3_t p)
 {
 	int		cont;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	cont = SV_HullPointContents (&sv.worldmodel->hulls[0], 0, p);
 	if (cont <= CONTENTS_CURRENT_0 && cont >= CONTENTS_CURRENT_DOWN)
 		cont = CONTENTS_WATER;
@@ -536,6 +556,7 @@ int SV_PointContents (vec3_t p)
 
 int SV_TruePointContents (vec3_t p)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	return SV_HullPointContents (&sv.worldmodel->hulls[0], 0, p);
 }
 
@@ -551,6 +572,8 @@ This could be a lot more efficient...
 edict_t	*SV_TestEntityPosition (edict_t *ent)
 {
 	trace_t	trace;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	trace = SV_Move (ent->v.origin, ent->v.mins, ent->v.maxs, ent->v.origin, 0, ent);
 	
@@ -588,6 +611,8 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 	vec3_t		mid;
 	int			side;
 	float		midf;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // check for empty
 	if (num < 0)
@@ -726,6 +751,8 @@ trace_t SV_ClipMoveToEntity (edict_t *ent, vec3_t start, vec3_t mins, vec3_t max
 	vec3_t		start_l, end_l;
 	hull_t		*hull;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // fill in a default trace
 	memset (&trace, 0, sizeof(trace_t));
 	trace.fraction = 1;
@@ -817,6 +844,8 @@ void SV_ClipToLinks ( areanode_t *node, moveclip_t *clip )
 	edict_t		*touch;
 	trace_t		trace;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // touch linked edicts
 	for (l = node->solid_edicts.next ; l != &node->solid_edicts ; l = next)
 	{
@@ -896,9 +925,13 @@ void SV_MoveBounds (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, vec3_t b
 // debug to test against everything
 boxmins[0] = boxmins[1] = boxmins[2] = -9999;
 boxmaxs[0] = boxmaxs[1] = boxmaxs[2] = 9999;
+    DO_STACK_TRACE( __FUNCTION__ )
+
 #else
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<3 ; i++)
 	{
 		if (end[i] > start[i])
@@ -924,6 +957,8 @@ trace_t SV_Move (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, e
 {
 	moveclip_t	clip;
 	int			i;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	memset ( &clip, 0, sizeof ( moveclip_t ) );
 

@@ -116,8 +116,8 @@ float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
 void R_MarkLeaves (void);
 
 cvar_t	r_draworder = {"r_draworder","0"};
-cvar_t	r_speeds = {"r_speeds","0"};
-cvar_t	r_timegraph = {"r_timegraph","0"};
+cvar_t	r_speeds = {"r_speeds","1"};
+cvar_t	r_timegraph = {"r_timegraph","1"};
 cvar_t	r_graphheight = {"r_graphheight","10"};
 cvar_t	r_clearcolor = {"r_clearcolor","2"};
 cvar_t	r_waterwarp = {"r_waterwarp","1"};
@@ -125,7 +125,7 @@ cvar_t	r_fullbright = {"r_fullbright","0"};
 cvar_t	r_drawentities = {"r_drawentities","1"};
 cvar_t	r_drawviewmodel = {"r_drawviewmodel","1"};
 cvar_t	r_aliasstats = {"r_polymodelstats","0"};
-cvar_t	r_dspeeds = {"r_dspeeds","0"};
+cvar_t	r_dspeeds = {"r_dspeeds","1"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
@@ -151,7 +151,9 @@ void	R_InitTextures (void)
 {
 	int		x,y, m;
 	byte	*dest;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // create a simple checkerboard texture for the default
 	r_notexture_mip = Hunk_AllocName (sizeof(texture_t) + 16*16+8*8+4*4+2*2, "notexture");
 	
@@ -183,7 +185,9 @@ R_Init
 void R_Init (void)
 {
 	int		dummy;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // get stack position so we can guess if we are going to overflow
 	r_stack_start = (byte *)&dummy;
 	
@@ -246,7 +250,9 @@ R_NewMap
 void R_NewMap (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // clear out efrags in case the level hasn't been reloaded
 // FIXME: is this one short?
 	for (i=0 ; i<cl.worldmodel->numleafs ; i++)
@@ -313,6 +319,8 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
 	int		h;
 	float	size;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	size = scr_viewsize.value > 100 ? 100 : scr_viewsize.value;
 	if (cl.intermission)
 	{
@@ -360,6 +368,8 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
 {
 	int		i;
 	float	res_scale;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	r_viewchanged = true;
 
@@ -491,9 +501,11 @@ R_MarkLeaves
 */
 void R_MarkLeaves (void)
 {
-	byte	*vis;
+	const byte *vis;
 	mnode_t	*node;
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (r_oldviewleaf == r_viewleaf)
 		return;
@@ -534,6 +546,8 @@ void R_DrawEntitiesOnList (void)
 	float		lightvec[3] = {-1, 0, 0};
 	vec3_t		dist;
 	float		add;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!r_drawentities.value)
 		return;
@@ -613,7 +627,9 @@ void R_DrawViewModel (void)
 	vec3_t		dist;
 	float		add;
 	dlight_t	*dl;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!r_drawviewmodel.value || r_fov_greater_than_90)
 		return;
 
@@ -684,6 +700,8 @@ int R_BmodelCheckBBox (model_t *clmodel, float *minmaxs)
 	vec3_t		acceptpt, rejectpt;
 	double		d;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	clipflags = 0;
 
 	if (currententity->angles[0] || currententity->angles[1]
@@ -748,6 +766,8 @@ void R_DrawBEntitiesOnList (void)
 	vec3_t		oldorigin;
 	model_t		*clmodel;
 	float		minmaxs[6];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!r_drawentities.value)
 		return;
@@ -874,12 +894,14 @@ void R_DrawBEntitiesOnList (void)
 R_EdgeDrawing
 ================
 */
+__RAM_1 edge_t	ledges[NUMSTACKEDGES +
+				((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+__RAM_1 surf_t	lsurfs[NUMSTACKSURFACES +
+				((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+
 void R_EdgeDrawing (void)
 {
-	edge_t	ledges[NUMSTACKEDGES +
-				((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-	surf_t	lsurfs[NUMSTACKSURFACES +
-				((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (auxedges)
 	{
@@ -952,10 +974,12 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-__RAM_1 byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT];
+__RAM_1 byte warpbuffer[WARP_WIDTH * WARP_HEIGHT];
 
 void R_RenderView_ (void)
-{	
+{
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_warpbuffer = warpbuffer;
 
 	if (r_timegraph.value || r_speeds.value || r_dspeeds.value)
@@ -1052,7 +1076,9 @@ void R_RenderView (void)
 {
 	int		dummy;
 	int		delta;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	delta = (byte *)&dummy - r_stack_start;
 	if (delta < -10000 || delta > 10000)
 		Sys_Error ("R_RenderView: called without enough stack");
@@ -1077,7 +1103,9 @@ R_InitTurb
 void R_InitTurb (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<(SIN_BUFFER_SIZE) ; i++)
 	{
 		sintable[i] = AMP + sin(i*3.14159*2/CYCLE)*AMP;

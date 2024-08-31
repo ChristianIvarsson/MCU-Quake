@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "quakedef.h"
+#include "qfile.h"
 
 extern cvar_t	pausable;
 
@@ -36,6 +37,7 @@ extern void M_Menu_Quit_f (void);
 
 void Host_Quit_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	if (key_dest != key_console && cls.state != ca_dedicated)
 	{
 		M_Menu_Quit_f ();
@@ -60,8 +62,10 @@ void Host_Status_f (void)
 	int			minutes;
 	int			hours = 0;
 	int			j;
-	void		(*print) (char *fmt, ...);
-	
+	void		(*print) (const char *fmt, ...);
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		if (!sv.active)
@@ -112,6 +116,8 @@ Sets client to godmode
 */
 void Host_God_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -130,6 +136,8 @@ void Host_God_f (void)
 
 void Host_Notarget_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -150,6 +158,8 @@ qboolean noclip_anglehack;
 
 void Host_Noclip_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -182,6 +192,8 @@ Sets client to flymode
 */
 void Host_Fly_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -215,7 +227,9 @@ void Host_Ping_f (void)
 	int		i, j;
 	float	total;
 	client_t	*client;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -257,6 +271,8 @@ void Host_Map_f (void)
 {
 	int		i;
 	char	name[MAX_QPATH];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source != src_command)
 		return;
@@ -314,6 +330,7 @@ void Host_Changelevel_f (void)
 	char	level[MAX_QPATH];
 	char	_startspot[MAX_QPATH];
 	char	*startspot;
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (Cmd_Argc() < 2)
 	{
@@ -339,6 +356,7 @@ void Host_Changelevel_f (void)
 	SV_SpawnServer (level, startspot);
 #else
 	char	level[MAX_QPATH];
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (Cmd_Argc() != 2)
 	{
@@ -370,6 +388,8 @@ void Host_Restart_f (void)
 	char	startspot[MAX_QPATH];
 #endif
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.demoplayback || !sv.active)
 		return;
 
@@ -395,6 +415,7 @@ This is sent just before a server changes levels
 */
 void Host_Reconnect_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	SCR_BeginLoadingPlaque ();
 	cls.signon = 0;		// need new connection messages
 }
@@ -409,7 +430,9 @@ User command to connect to server
 void Host_Connect_f (void)
 {
 	char	name[MAX_QPATH];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	cls.demonum = -1;		// stop demo loop in case this fails
 	if (cls.demoplayback)
 	{
@@ -444,6 +467,8 @@ void Host_SavegameComment (char *text)
 	int		i;
 	char	kills[20];
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<SAVEGAME_COMMENT_LENGTH ; i++)
 		text[i] = ' ';
 	memcpy (text, cl.levelname, strlen(cl.levelname));
@@ -465,9 +490,11 @@ Host_Savegame_f
 void Host_Savegame_f (void)
 {
 	char	name[256];
-	FILE	*f;
+	QFILE	*f;
 	int		i;
 	char	comment[SAVEGAME_COMMENT_LENGTH+1];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source != src_command)
 		return;
@@ -515,30 +542,30 @@ void Host_Savegame_f (void)
 	COM_DefaultExtension (name, ".sav");
 	
 	Con_Printf ("Saving game to %s...\n", name);
-	f = fopen (name, "w");
+	f = Qfopen (name, "w");
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open.\n");
 		return;
 	}
 	
-	fprintf (f, "%i\n", SAVEGAME_VERSION);
+	Qfprintf (f, "%i\n", SAVEGAME_VERSION);
 	Host_SavegameComment (comment);
-	fprintf (f, "%s\n", comment);
+	Qfprintf (f, "%s\n", comment);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-		fprintf (f, "%f\n", svs.clients->spawn_parms[i]);
-	fprintf (f, "%d\n", current_skill);
-	fprintf (f, "%s\n", sv.name);
-	fprintf (f, "%f\n",sv.time);
+		Qfprintf (f, "%f\n", svs.clients->spawn_parms[i]);
+	Qfprintf (f, "%d\n", current_skill);
+	Qfprintf (f, "%s\n", sv.name);
+	Qfprintf (f, "%f\n",sv.time);
 
 // write the light styles
 
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
 	{
 		if (sv.lightstyles[i])
-			fprintf (f, "%s\n", sv.lightstyles[i]);
+			Qfprintf (f, "%s\n", sv.lightstyles[i]);
 		else
-			fprintf (f,"m\n");
+			Qfprintf (f,"m\n");
 	}
 
 
@@ -546,9 +573,9 @@ void Host_Savegame_f (void)
 	for (i=0 ; i<sv.num_edicts ; i++)
 	{
 		ED_Write (f, EDICT_NUM(i));
-		fflush (f);
+		Qfflush (f);
 	}
-	fclose (f);
+	Qfclose (f);
 	Con_Printf ("done.\n");
 }
 
@@ -561,7 +588,7 @@ Host_Loadgame_f
 void Host_Loadgame_f (void)
 {
 	char	name[MAX_OSPATH];
-	FILE	*f;
+	QFILE	*f;
 	char	mapname[MAX_QPATH];
 	float	time, tfloat;
 	char	str[32768], *start;
@@ -570,6 +597,8 @@ void Host_Loadgame_f (void)
 	int		entnum;
 	int		version;
 	float			spawn_parms[NUM_SPAWN_PARMS];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source != src_command)
 		return;
@@ -582,7 +611,11 @@ void Host_Loadgame_f (void)
 
 	cls.demonum = -1;		// stop demo loop in case this fails
 
-	sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
+	if ( snprintf (name, sizeof(name), "%s/%s", com_gamedir, Cmd_Argv(1)) < 0 )
+	{
+		Con_Printf ("file path had to be truncated\n");
+	}
+
 	COM_DefaultExtension (name, ".sav");
 	
 // we can't call SCR_BeginLoadingPlaque, because too much stack space has
@@ -590,25 +623,25 @@ void Host_Loadgame_f (void)
 //	SCR_BeginLoadingPlaque ();
 
 	Con_Printf ("Loading game from %s...\n", name);
-	f = fopen (name, "r");
+	f = Qfopen (name, "r");
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open.\n");
 		return;
 	}
 
-	fscanf (f, "%i\n", &version);
+	Qfscanf (f, "%i\n", &version);
 	if (version != SAVEGAME_VERSION)
 	{
-		fclose (f);
+		Qfclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
 		return;
 	}
-	fscanf (f, "%s\n", str);
+	Qfscanf (f, "%s\n", str);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-		fscanf (f, "%f\n", &spawn_parms[i]);
+		Qfscanf (f, "%f\n", &spawn_parms[i]);
 // this silliness is so we can load 1.06 save files, which have float skill values
-	fscanf (f, "%f\n", &tfloat);
+	Qfscanf (f, "%f\n", &tfloat);
 	current_skill = (int)(tfloat + 0.1);
 	Cvar_SetValue ("skill", (float)current_skill);
 
@@ -618,8 +651,8 @@ void Host_Loadgame_f (void)
 	Cvar_SetValue ("teamplay", 0);
 #endif
 
-	fscanf (f, "%s\n",mapname);
-	fscanf (f, "%f\n",&time);
+	Qfscanf (f, "%s\n",mapname);
+	Qfscanf (f, "%f\n",&time);
 
 	CL_Disconnect_f ();
 	
@@ -640,18 +673,18 @@ void Host_Loadgame_f (void)
 
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
 	{
-		fscanf (f, "%s\n", str);
+		Qfscanf (f, "%s\n", str);
 		sv.lightstyles[i] = Hunk_Alloc (strlen(str)+1);
 		strcpy (sv.lightstyles[i], str);
 	}
 
 // load the edicts out of the savegame file
 	entnum = -1;		// -1 is the globals
-	while (!feof(f))
+	while (!Qfeof(f))
 	{
 		for (i=0 ; i<sizeof(str)-1 ; i++)
 		{
-			r = fgetc (f);
+			r = Qfgetc (f);
 			if (r == EOF || !r)
 				break;
 			str[i] = r;
@@ -694,7 +727,7 @@ void Host_Loadgame_f (void)
 	sv.num_edicts = entnum;
 	sv.time = time;
 
-	fclose (f);
+	Qfclose (f);
 
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
 		svs.clients->spawn_parms[i] = spawn_parms[i];
@@ -710,38 +743,40 @@ void Host_Loadgame_f (void)
 void SaveGamestate()
 {
 	char	name[256];
-	FILE	*f;
+	QFILE	*f;
 	int		i;
 	char	comment[SAVEGAME_COMMENT_LENGTH+1];
 	edict_t	*ent;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	sprintf (name, "%s/%s.gip", com_gamedir, sv.name);
 	
 	Con_Printf ("Saving game to %s...\n", name);
-	f = fopen (name, "w");
+	f = Qfopen (name, "w");
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open.\n");
 		return;
 	}
 	
-	fprintf (f, "%i\n", SAVEGAME_VERSION);
+	Qfprintf (f, "%i\n", SAVEGAME_VERSION);
 	Host_SavegameComment (comment);
-	fprintf (f, "%s\n", comment);
+	Qfprintf (f, "%s\n", comment);
 //	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-//		fprintf (f, "%f\n", svs.clients->spawn_parms[i]);
-	fprintf (f, "%f\n", skill.value);
-	fprintf (f, "%s\n", sv.name);
-	fprintf (f, "%f\n", sv.time);
+//		Qfprintf (f, "%f\n", svs.clients->spawn_parms[i]);
+	Qfprintf (f, "%f\n", skill.value);
+	Qfprintf (f, "%s\n", sv.name);
+	Qfprintf (f, "%f\n", sv.time);
 
 // write the light styles
 
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
 	{
 		if (sv.lightstyles[i])
-			fprintf (f, "%s\n", sv.lightstyles[i]);
+			Qfprintf (f, "%s\n", sv.lightstyles[i]);
 		else
-			fprintf (f,"m\n");
+			Qfprintf (f,"m\n");
 	}
 
 
@@ -750,18 +785,18 @@ void SaveGamestate()
 		ent = EDICT_NUM(i);
 		if ((int)ent->v.flags & FL_ARCHIVE_OVERRIDE)
 			continue;
-		fprintf (f, "%i\n",i);
+		Qfprintf (f, "%i\n",i);
 		ED_Write (f, ent);
-		fflush (f);
+		Qfflush (f);
 	}
-	fclose (f);
+	Qfclose (f);
 	Con_Printf ("done.\n");
 }
 
 int LoadGamestate(char *level, char *startspot)
 {
 	char	name[MAX_OSPATH];
-	FILE	*f;
+	QFILE	*f;
 	char	mapname[MAX_QPATH];
 	float	time, sk;
 	char	str[32768], *start;
@@ -771,31 +806,33 @@ int LoadGamestate(char *level, char *startspot)
 	int		version;
 //	float	spawn_parms[NUM_SPAWN_PARMS];
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	sprintf (name, "%s/%s.gip", com_gamedir, level);
 	
 	Con_Printf ("Loading game from %s...\n", name);
-	f = fopen (name, "r");
+	f = Qfopen (name, "r");
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open.\n");
 		return -1;
 	}
 
-	fscanf (f, "%i\n", &version);
+	Qfscanf (f, "%i\n", &version);
 	if (version != SAVEGAME_VERSION)
 	{
-		fclose (f);
+		Qfclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
 		return -1;
 	}
-	fscanf (f, "%s\n", str);
+	Qfscanf (f, "%s\n", str);
 //	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-//		fscanf (f, "%f\n", &spawn_parms[i]);
-	fscanf (f, "%f\n", &sk);
+//		Qfscanf (f, "%f\n", &spawn_parms[i]);
+	Qfscanf (f, "%f\n", &sk);
 	Cvar_SetValue ("skill", sk);
 
-	fscanf (f, "%s\n",mapname);
-	fscanf (f, "%f\n",&time);
+	Qfscanf (f, "%s\n",mapname);
+	Qfscanf (f, "%f\n",&time);
 
 	SV_SpawnServer (mapname, startspot);
 
@@ -808,18 +845,18 @@ int LoadGamestate(char *level, char *startspot)
 // load the light styles
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
 	{
-		fscanf (f, "%s\n", str);
+		Qfscanf (f, "%s\n", str);
 		sv.lightstyles[i] = Hunk_Alloc (strlen(str)+1);
 		strcpy (sv.lightstyles[i], str);
 	}
 
 // load the edicts out of the savegame file
-	while (!feof(f))
+	while (!Qfeof(f))
 	{
-		fscanf (f, "%i\n",&entnum);
+		Qfscanf (f, "%i\n",&entnum);
 		for (i=0 ; i<sizeof(str)-1 ; i++)
 		{
-			r = fgetc (f);
+			r = Qfgetc (f);
 			if (r == EOF || !r)
 				break;
 			str[i] = r;
@@ -853,7 +890,7 @@ int LoadGamestate(char *level, char *startspot)
 	
 //	sv.num_edicts = entnum;
 	sv.time = time;
-	fclose (f);
+	Qfclose (f);
 
 //	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
 //		svs.clients->spawn_parms[i] = spawn_parms[i];
@@ -867,6 +904,8 @@ void Host_Changelevel2_f (void)
 	char	level[MAX_QPATH];
 	char	_startspot[MAX_QPATH];
 	char	*startspot;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (Cmd_Argc() < 2)
 	{
@@ -911,6 +950,8 @@ void Host_Name_f (void)
 {
 	char	*newName;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc () == 1)
 	{
 		Con_Printf ("\"name\" is \"%s\"\n", cl_name.string);
@@ -948,6 +989,7 @@ void Host_Name_f (void)
 	
 void Host_Version_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	Con_Printf ("Version %4.2f\n", VERSION);
 	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
@@ -957,7 +999,9 @@ void Host_Please_f (void)
 {
 	client_t *cl;
 	int			j;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source != src_command)
 		return;
 
@@ -1014,6 +1058,8 @@ void Host_Say(qboolean teamonly)
 	unsigned char	text[64];
 	qboolean	fromServer = false;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		if (cls.state == ca_dedicated)
@@ -1043,16 +1089,16 @@ void Host_Say(qboolean teamonly)
 
 // turn on color set 1
 	if (!fromServer)
-		sprintf (text, "%c%s: ", 1, save->name);
+		snprintf ((char*)text, sizeof(text), "%c%s: ", 1, save->name);
 	else
-		sprintf (text, "%c<%s> ", 1, hostname.string);
+		snprintf ((char*)text, sizeof(text), "%c<%s> ", 1, hostname.string);
 
-	j = sizeof(text) - 2 - Q_strlen(text);  // -2 for /n and null terminator
+	j = sizeof(text) - 2 - Q_strlen((char*)text);  // -2 for /n and null terminator
 	if (Q_strlen(p) > j)
 		p[j] = 0;
 
-	strcat (text, p);
-	strcat (text, "\n");
+	strcat ((char*)text, p);
+	strcat ((char*)text, "\n");
 
 	for (j = 0, client = svs.clients; j < svs.maxclients; j++, client++)
 	{
@@ -1071,12 +1117,14 @@ void Host_Say(qboolean teamonly)
 
 void Host_Say_f(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	Host_Say(false);
 }
 
 
 void Host_Say_Team_f(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	Host_Say(true);
 }
 
@@ -1088,6 +1136,8 @@ void Host_Tell_f(void)
 	int		j;
 	char	*p;
 	char	text[64];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source == src_command)
 	{
@@ -1142,7 +1192,9 @@ void Host_Color_f(void)
 {
 	int		top, bottom;
 	int		playercolor;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc() == 1)
 	{
 		Con_Printf ("\"color\" is \"%i %i\"\n", ((int)cl_color.value) >> 4, ((int)cl_color.value) & 0x0f);
@@ -1191,6 +1243,8 @@ Host_Kill_f
 */
 void Host_Kill_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -1216,7 +1270,8 @@ Host_Pause_f
 */
 void Host_Pause_f (void)
 {
-	
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -1253,6 +1308,8 @@ Host_PreSpawn_f
 */
 void Host_PreSpawn_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Con_Printf ("prespawn is not valid from the console\n");
@@ -1281,6 +1338,8 @@ void Host_Spawn_f (void)
 	int		i;
 	client_t	*client;
 	edict_t	*ent;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source == src_command)
 	{
@@ -1402,6 +1461,8 @@ Host_Begin_f
 */
 void Host_Begin_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source == src_command)
 	{
 		Con_Printf ("begin is not valid from the console\n");
@@ -1428,6 +1489,8 @@ void Host_Kick_f (void)
 	client_t	*save;
 	int			i;
 	qboolean	byNumber = false;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source == src_command)
 	{
@@ -1516,8 +1579,10 @@ Host_Give_f
 void Host_Give_f (void)
 {
 	char	*t;
-	int		v, w;
+	int		v; // , w;
 	eval_t	*val;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source == src_command)
 	{
@@ -1671,7 +1736,9 @@ edict_t	*FindViewthing (void)
 {
 	int		i;
 	edict_t	*e;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<sv.num_edicts ; i++)
 	{
 		e = EDICT_NUM(i);
@@ -1691,6 +1758,8 @@ void Host_Viewmodel_f (void)
 {
 	edict_t	*e;
 	model_t	*m;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	e = FindViewthing ();
 	if (!e)
@@ -1718,6 +1787,8 @@ void Host_Viewframe_f (void)
 	int		f;
 	model_t	*m;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	e = FindViewthing ();
 	if (!e)
 		return;
@@ -1736,6 +1807,8 @@ void PrintFrameName (model_t *m, int frame)
 	aliashdr_t 			*hdr;
 	maliasframedesc_t	*pframedesc;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	hdr = (aliashdr_t *)Mod_Extradata (m);
 	if (!hdr)
 		return;
@@ -1753,7 +1826,9 @@ void Host_Viewnext_f (void)
 {
 	edict_t	*e;
 	model_t	*m;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	e = FindViewthing ();
 	if (!e)
 		return;
@@ -1775,6 +1850,8 @@ void Host_Viewprev_f (void)
 {
 	edict_t	*e;
 	model_t	*m;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	e = FindViewthing ();
 	if (!e)
@@ -1806,6 +1883,8 @@ Host_Startdemos_f
 void Host_Startdemos_f (void)
 {
 	int		i, c;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cls.state == ca_dedicated)
 	{
@@ -1844,6 +1923,8 @@ Return to looping demos
 */
 void Host_Demos_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.state == ca_dedicated)
 		return;
 	if (cls.demonum == -1)
@@ -1861,6 +1942,8 @@ Return to looping demos
 */
 void Host_Stopdemo_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.state == ca_dedicated)
 		return;
 	if (!cls.demoplayback)
@@ -1878,6 +1961,8 @@ Host_InitCommands
 */
 void Host_InitCommands (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Cmd_AddCommand ("status", Host_Status_f);
 	Cmd_AddCommand ("quit", Host_Quit_f);
 	Cmd_AddCommand ("god", Host_God_f);

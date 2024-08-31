@@ -20,13 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // common.c -- misc functions used in client and server
 
 #include "quakedef.h"
+#include "qfile.h"
 
 #define NUM_SAFE_ARGVS  7
 
-static char     *largv[MAX_NUM_ARGVS + NUM_SAFE_ARGVS + 1];
-static char     *argvdummy = " ";
+static const char     *largv[MAX_NUM_ARGVS + NUM_SAFE_ARGVS + 1];
+static const char     *argvdummy = " ";
 
-static char     *safeargvs[NUM_SAFE_ARGVS] =
+static const char     *safeargvs[NUM_SAFE_ARGVS] =
 	{"-stdvid", "-nolan", "-nosound", "-nocdaudio", "-nojoy", "-nomouse", "-dibonly"};
 
 cvar_t  registered = {"registered","0"};
@@ -48,7 +49,7 @@ void COM_InitFilesystem (void);
 
 char	com_token[1024];
 int		com_argc;
-char	**com_argv;
+const char	**com_argv;
 
 #define CMDLINE_LENGTH	256
 char	com_cmdline[CMDLINE_LENGTH];
@@ -56,8 +57,7 @@ char	com_cmdline[CMDLINE_LENGTH];
 qboolean		standard_quake = true, rogue, hipnotic;
 
 // this graphic needs to be in the pak file to use registered features
-unsigned short pop[] =
-{
+static const unsigned short pop[] = {
  0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000
 ,0x0000,0x0000,0x6600,0x0000,0x0000,0x0000,0x6600,0x0000
 ,0x0000,0x0066,0x0000,0x0000,0x0000,0x0000,0x0067,0x0000
@@ -103,17 +103,20 @@ The file "parms.txt" will be read out of the game directory and appended to the 
 // ClearLink is used for new headnodes
 void ClearLink (link_t *l)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	l->prev = l->next = l;
 }
 
 void RemoveLink (link_t *l)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	l->next->prev = l->prev;
 	l->prev->next = l->next;
 }
 
 void InsertLinkBefore (link_t *l, link_t *before)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	l->next = before;
 	l->prev = before->prev;
 	l->prev->next = l;
@@ -121,6 +124,7 @@ void InsertLinkBefore (link_t *l, link_t *before)
 }
 void InsertLinkAfter (link_t *l, link_t *after)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	l->next = after->next;
 	l->prev = after;
 	l->prev->next = l;
@@ -138,7 +142,9 @@ void InsertLinkAfter (link_t *l, link_t *after)
 void Q_memset (void *dest, int fill, int count)
 {
 	int             i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if ( (((long)dest | count) & 3) == 0)
 	{
 		count >>= 2;
@@ -151,10 +157,12 @@ void Q_memset (void *dest, int fill, int count)
 			((byte *)dest)[i] = fill;
 }
 
-void Q_memcpy (void *dest, void *src, int count)
+void Q_memcpy (void *dest, const void *src, int count)
 {
 	int             i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (( ( (long)dest | (long)src | count) & 3) == 0 )
 	{
 		count>>=2;
@@ -168,6 +176,8 @@ void Q_memcpy (void *dest, void *src, int count)
 
 int Q_memcmp (void *m1, void *m2, int count)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while(count)
 	{
 		count--;
@@ -179,6 +189,8 @@ int Q_memcmp (void *m1, void *m2, int count)
 
 void Q_strcpy (char *dest, const char *src)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (*src)
 	{
 		*dest++ = *src++;
@@ -188,6 +200,8 @@ void Q_strcpy (char *dest, const char *src)
 
 void Q_strncpy (char *dest, const char *src, int count)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (*src && count--)
 	{
 		*dest++ = *src++;
@@ -199,7 +213,9 @@ void Q_strncpy (char *dest, const char *src, int count)
 int Q_strlen (const char *str)
 {
 	int             count;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	count = 0;
 	while (str[count])
 		count++;
@@ -210,20 +226,25 @@ int Q_strlen (const char *str)
 char *Q_strrchr(char *s, char c)
 {
     int len = Q_strlen(s);
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
     s += len;
     while (len--)
 	if (*--s == c) return s;
     return 0;
 }
 
-void Q_strcat (char *dest, char *src)
+void Q_strcat (char *dest, const char *src)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	dest += Q_strlen(dest);
 	Q_strcpy (dest, src);
 }
 
 int Q_strcmp (const char *s1, const char *s2)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	while (1)
 	{
 		if (*s1 != *s2)
@@ -239,6 +260,7 @@ int Q_strcmp (const char *s1, const char *s2)
 
 int Q_strncmp (const char *s1, const char *s2, int count)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	while (1)
 	{
 		if (!count--)
@@ -254,10 +276,12 @@ int Q_strncmp (const char *s1, const char *s2, int count)
 	return -1;
 }
 
-int Q_strncasecmp (char *s1, char *s2, int n)
+int Q_strncasecmp (const char *s1, const char *s2, int n)
 {
 	int             c1, c2;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (1)
 	{
 		c1 = *s1++;
@@ -284,17 +308,20 @@ int Q_strncasecmp (char *s1, char *s2, int n)
 	return -1;
 }
 
-int Q_strcasecmp (char *s1, char *s2)
+int Q_strcasecmp (const char *s1, const char *s2)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return Q_strncasecmp (s1, s2, 99999);
 }
 
-int Q_atoi (char *str)
+int Q_atoi (const char *str)
 {
 	int             val;
 	int             sign;
 	int             c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (*str == '-')
 	{
 		sign = -1;
@@ -348,13 +375,15 @@ int Q_atoi (char *str)
 }
 
 
-float Q_atof (char *str)
+float Q_atof (const char *str)
 {
 	double			val;
 	int             sign;
 	int             c;
 	int             decimal, total;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (*str == '-')
 	{
 		sign = -1;
@@ -444,6 +473,8 @@ short   ShortSwap (short l)
 {
 	byte    b1,b2;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	b1 = l&255;
 	b2 = (l>>8)&255;
 
@@ -452,12 +483,15 @@ short   ShortSwap (short l)
 
 short   ShortNoSwap (short l)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return l;
 }
 
 int    LongSwap (int l)
 {
 	byte    b1,b2,b3,b4;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	b1 = l&255;
 	b2 = (l>>8)&255;
@@ -469,6 +503,7 @@ int    LongSwap (int l)
 
 int     LongNoSwap (int l)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return l;
 }
 
@@ -479,8 +514,9 @@ float FloatSwap (float f)
 		float   f;
 		byte    b[4];
 	} dat1, dat2;
-	
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	dat1.f = f;
 	dat2.b[0] = dat1.b[3];
 	dat2.b[1] = dat1.b[2];
@@ -491,6 +527,7 @@ float FloatSwap (float f)
 
 float FloatNoSwap (float f)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return f;
 }
 
@@ -510,7 +547,9 @@ Handles byte ordering and avoids alignment errors
 void MSG_WriteChar (sizebuf_t *sb, int c)
 {
 	byte    *buf;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 #ifdef PARANOID
 	if (c < -128 || c > 127)
 		Sys_Error ("MSG_WriteChar: range error");
@@ -523,7 +562,9 @@ void MSG_WriteChar (sizebuf_t *sb, int c)
 void MSG_WriteByte (sizebuf_t *sb, int c)
 {
 	byte    *buf;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 #ifdef PARANOID
 	if (c < 0 || c > 255)
 		Sys_Error ("MSG_WriteByte: range error");
@@ -536,7 +577,9 @@ void MSG_WriteByte (sizebuf_t *sb, int c)
 void MSG_WriteShort (sizebuf_t *sb, int c)
 {
 	byte    *buf;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 #ifdef PARANOID
 	if (c < ((short)0x8000) || c > (short)0x7fff)
 		Sys_Error ("MSG_WriteShort: range error");
@@ -550,7 +593,9 @@ void MSG_WriteShort (sizebuf_t *sb, int c)
 void MSG_WriteLong (sizebuf_t *sb, int c)
 {
 	byte    *buf;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	buf = SZ_GetSpace (sb, 4);
 	buf[0] = c&0xff;
 	buf[1] = (c>>8)&0xff;
@@ -565,8 +610,9 @@ void MSG_WriteFloat (sizebuf_t *sb, float f)
 		float   f;
 		int     l;
 	} dat;
-	
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )	
+
 	dat.f = f;
 	dat.l = LittleLong (dat.l);
 	
@@ -575,6 +621,8 @@ void MSG_WriteFloat (sizebuf_t *sb, float f)
 
 void MSG_WriteString (sizebuf_t *sb, char *s)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!s)
 		SZ_Write (sb, "", 1);
 	else
@@ -583,11 +631,13 @@ void MSG_WriteString (sizebuf_t *sb, char *s)
 
 void MSG_WriteCoord (sizebuf_t *sb, float f)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteShort (sb, (int)(f*8));
 }
 
 void MSG_WriteAngle (sizebuf_t *sb, float f)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteByte (sb, ((int)f*256/360) & 255);
 }
 
@@ -599,6 +649,7 @@ qboolean        msg_badread;
 
 void MSG_BeginReading (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	msg_readcount = 0;
 	msg_badread = false;
 }
@@ -607,7 +658,9 @@ void MSG_BeginReading (void)
 int MSG_ReadChar (void)
 {
 	int     c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (msg_readcount+1 > net_message.cursize)
 	{
 		msg_badread = true;
@@ -623,7 +676,9 @@ int MSG_ReadChar (void)
 int MSG_ReadByte (void)
 {
 	int     c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (msg_readcount+1 > net_message.cursize)
 	{
 		msg_badread = true;
@@ -639,7 +694,9 @@ int MSG_ReadByte (void)
 int MSG_ReadShort (void)
 {
 	int     c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (msg_readcount+2 > net_message.cursize)
 	{
 		msg_badread = true;
@@ -657,7 +714,9 @@ int MSG_ReadShort (void)
 int MSG_ReadLong (void)
 {
 	int     c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (msg_readcount+4 > net_message.cursize)
 	{
 		msg_badread = true;
@@ -682,7 +741,9 @@ float MSG_ReadFloat (void)
 		float   f;
 		int     l;
 	} dat;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	dat.b[0] =      net_message.data[msg_readcount];
 	dat.b[1] =      net_message.data[msg_readcount+1];
 	dat.b[2] =      net_message.data[msg_readcount+2];
@@ -698,7 +759,9 @@ char *MSG_ReadString (void)
 {
 	static char     string[2048];
 	int             l,c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	l = 0;
 	do
 	{
@@ -716,11 +779,13 @@ char *MSG_ReadString (void)
 
 float MSG_ReadCoord (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return MSG_ReadShort() * (1.0/8);
 }
 
 float MSG_ReadAngle (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return MSG_ReadChar() * (360.0/256);
 }
 
@@ -730,6 +795,7 @@ float MSG_ReadAngle (void)
 
 void SZ_Alloc (sizebuf_t *buf, int startsize)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	if (startsize < 256)
 		startsize = 256;
 	buf->data = Hunk_AllocName (startsize, "sizebuf");
@@ -740,6 +806,7 @@ void SZ_Alloc (sizebuf_t *buf, int startsize)
 
 void SZ_Free (sizebuf_t *buf)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 //      Z_Free (buf->data);
 //      buf->data = NULL;
 //      buf->maxsize = 0;
@@ -748,13 +815,16 @@ void SZ_Free (sizebuf_t *buf)
 
 void SZ_Clear (sizebuf_t *buf)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	buf->cursize = 0;
 }
 
 void *SZ_GetSpace (sizebuf_t *buf, int length)
 {
 	void    *data;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (buf->cursize + length > buf->maxsize)
 	{
 		if (!buf->allowoverflow)
@@ -776,13 +846,16 @@ void *SZ_GetSpace (sizebuf_t *buf, int length)
 
 void SZ_Write (sizebuf_t *buf, void *data, int length)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	Q_memcpy (SZ_GetSpace(buf,length),data,length);         
 }
 
 void SZ_Print (sizebuf_t *buf, char *data)
 {
 	int             len;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	len = Q_strlen(data)+1;
 
 // byte * cast to keep VC++ happy
@@ -804,7 +877,9 @@ COM_SkipPath
 char *COM_SkipPath (char *pathname)
 {
 	char    *last;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	last = pathname;
 	while (*pathname)
 	{
@@ -822,6 +897,8 @@ COM_StripExtension
 */
 void COM_StripExtension (char *in, char *out)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (*in && *in != '.')
 		*out++ = *in++;
 	*out = 0;
@@ -832,10 +909,12 @@ void COM_StripExtension (char *in, char *out)
 COM_FileExtension
 ============
 */
-char *COM_FileExtension (char *in)
+char *COM_FileExtension (const char *in)
 {
 	static char exten[8];
 	int             i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	while (*in && *in != '.')
 		in++;
@@ -856,7 +935,9 @@ COM_FileBase
 void COM_FileBase (char *in, char *out)
 {
 	char *s, *s2;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	s = in + strlen(in) - 1;
 	
 	while (s != in && *s != '.')
@@ -883,6 +964,7 @@ COM_DefaultExtension
 */
 void COM_DefaultExtension (char *path, char *extension)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	char    *src;
 //
 // if path doesn't have a .EXT, append extension
@@ -912,7 +994,9 @@ char *COM_Parse (char *data)
 {
 	int             c;
 	int             len;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	len = 0;
 	com_token[0] = 0;
 	
@@ -990,7 +1074,9 @@ where the given parameter apears, or 0 if not present
 int COM_CheckParm (char *parm)
 {
 	int             i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=1 ; i<com_argc ; i++)
 	{
 		if (!com_argv[i])
@@ -1017,6 +1103,8 @@ void COM_CheckRegistered (void)
 	int             h;
 	unsigned short  check[128];
 	int                     i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	COM_OpenFile("gfx/pop.lmp", &h);
 	static_registered = 0;
@@ -1054,10 +1142,12 @@ void COM_Path_f (void);
 COM_InitArgv
 ================
 */
-void COM_InitArgv (int argc, char **argv)
+void COM_InitArgv (int argc, const char **argv)
 {
 	qboolean        safe;
 	int             i, j, n;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // reconstitute the command line for the cmdline externally visible cvar
 	n = 0;
@@ -1126,9 +1216,12 @@ void COM_Init (char *basedir)
 {
 	byte    swaptest[2] = {1,0};
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // set the byte swapping variables in a portable manner 
 	if ( *(short *)swaptest == 1)
 	{
+		Con_Printf ("COM_Init: Using little endian mode\n");
 		bigendien = false;
 		BigShort = ShortSwap;
 		LittleShort = ShortNoSwap;
@@ -1139,6 +1232,7 @@ void COM_Init (char *basedir)
 	}
 	else
 	{
+		Con_Printf ("COM_Init: Using big endian mode\n");
 		bigendien = true;
 		BigShort = ShortNoSwap;
 		LittleShort = ShortSwap;
@@ -1170,7 +1264,9 @@ char    *va(char *format, ...)
 {
 	va_list         argptr;
 	static char             string[1024];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr, format);
 	vsprintf (string, format,argptr);
 	va_end (argptr);
@@ -1183,7 +1279,9 @@ char    *va(char *format, ...)
 int     memsearch (byte *start, int count, int search)
 {
 	int             i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<count ; i++)
 		if (start[i] == search)
 			return i;
@@ -1258,7 +1356,9 @@ COM_Path_f
 void COM_Path_f (void)
 {
 	searchpath_t    *s;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_Printf ("Current search path:\n");
 	for (s=com_searchpaths ; s ; s=s->next)
 	{
@@ -1281,9 +1381,11 @@ The filename will be prefixed by the current game directory
 void COM_WriteFile (char *filename, void *data, int len)
 {
 	int             handle;
-	char    name[MAX_OSPATH];
-	
-	sprintf (name, "%s/%s", com_gamedir, filename);
+	char    name[MAX_OSPATH + 1];
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
+	snprintf (name, sizeof(name), "%s/%s", com_gamedir, filename);
 
 	handle = Sys_FileOpenWrite (name);
 	if (handle == -1)
@@ -1308,7 +1410,9 @@ Only used for CopyFile
 void    COM_CreatePath (char *path)
 {
 	char    *ofs;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (ofs = path+1 ; *ofs ; ofs++)
 	{
 		if (*ofs == '/')
@@ -1334,7 +1438,9 @@ void COM_CopyFile (char *netpath, char *cachepath)
 	int             in, out;
 	int             remaining, count;
 	char    buf[4096];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	remaining = Sys_FileOpenRead (netpath, &in);            
 	COM_CreatePath (cachepath);     // create directories up to the cache file
 	out = Sys_FileOpenWrite (cachepath);
@@ -1362,14 +1468,16 @@ Finds the file in the search path.
 Sets com_filesize and one of handle or file
 ===========
 */
-int COM_FindFile (char *filename, int *handle, FILE **file)
+int COM_FindFile (char *filename, int *handle, QFILE **file)
 {
 	searchpath_t    *search;
-	char            netpath[MAX_OSPATH];
-	char            cachepath[MAX_OSPATH];
+	char            netpath[MAX_OSPATH + 14];
+	char            cachepath[MAX_OSPATH + 14];
 	pack_t          *pak;
 	int                     i;
 	int                     findtime, cachetime;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (file && handle)
 		Sys_Error ("COM_FindFile: both handle and file set");
@@ -1399,16 +1507,22 @@ int COM_FindFile (char *filename, int *handle, FILE **file)
 					Sys_Printf ("PackFile: %s : %s\n",pak->filename, filename);
 					if (handle)
 					{
+                        Sys_Printf("Using handle\n");
 						*handle = pak->handle;
 						Sys_FileSeek (pak->handle, pak->files[i].filepos);
 					}
 					else
-					{       // open a new file on the pakfile
-						*file = fopen (pak->filename, "rb");
+					{
+                        Sys_Printf("Using *file\n");
+                        // open a new file on the pakfile
+						*file = Qfopen (pak->filename, "rb");
 						if (*file)
-							fseek (*file, pak->files[i].filepos, SEEK_SET);
+							Qfseek (*file, pak->files[i].filepos, SEEK_SET);
+						else
+							Sys_Printf("No file pointer returned\n");
 					}
 					com_filesize = pak->files[i].filelen;
+					Sys_Printf("com_filesize: %u\n", (unsigned int)com_filesize);
 					return com_filesize;
 				}
 		}
@@ -1421,7 +1535,7 @@ int COM_FindFile (char *filename, int *handle, FILE **file)
 					continue;
 			}
 			
-			sprintf (netpath, "%s/%s",search->filename, filename);
+			snprintf (netpath, sizeof(netpath), "%s/%s",search->filename, filename);
 			
 			findtime = Sys_FileTime (netpath);
 			if (findtime == -1)
@@ -1429,17 +1543,26 @@ int COM_FindFile (char *filename, int *handle, FILE **file)
 				
 		// see if the file needs to be updated in the cache
 			if (!com_cachedir[0])
+			{
 				strcpy (cachepath, netpath);
+			}
 			else
-			{	
+			{
+				int strStatus;
+
 #if defined(_WIN32)
 				if ((strlen(netpath) < 2) || (netpath[1] != ':'))
-					sprintf (cachepath,"%s%s", com_cachedir, netpath);
+					strStatus = snprintf (cachepath,sizeof(cachepath),"%s%s", com_cachedir, netpath);
 				else
-					sprintf (cachepath,"%s%s", com_cachedir, netpath+2);
+					strStatus = snprintf (cachepath,sizeof(cachepath),"%s%s", com_cachedir, netpath+2);
 #else
-				sprintf (cachepath,"%s%s", com_cachedir, netpath);
+				strStatus = snprintf (cachepath, sizeof(cachepath), "%s%s", com_cachedir, netpath);
 #endif
+
+				if ( strStatus < 0 )
+				{
+					Sys_Printf("cachepath had to be truncated\n");
+				}
 
 				cachetime = Sys_FileTime (cachepath);
 			
@@ -1455,7 +1578,7 @@ int COM_FindFile (char *filename, int *handle, FILE **file)
 			else
 			{
 				Sys_FileClose (i);
-				*file = fopen (netpath, "rb");
+				*file = Qfopen (netpath, "rb");
 			}
 			return com_filesize;
 		}
@@ -1484,6 +1607,7 @@ it may actually be inside a pak file
 */
 int COM_OpenFile (char *filename, int *handle)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return COM_FindFile (filename, handle, NULL);
 }
 
@@ -1495,8 +1619,9 @@ If the requested file is inside a packfile, a new FILE * will be opened
 into the file.
 ===========
 */
-int COM_FOpenFile (char *filename, FILE **file)
+int COM_FOpenFile (char *filename, QFILE **file)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return COM_FindFile (filename, NULL, file);
 }
 
@@ -1510,7 +1635,9 @@ If it is a pak file handle, don't really close it
 void COM_CloseFile (int h)
 {
 	searchpath_t    *s;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (s = com_searchpaths ; s ; s=s->next)
 		if (s->pack && s->pack->handle == h)
 			return;
@@ -1536,6 +1663,8 @@ byte *COM_LoadFile (char *path, int usehunk)
 	byte    *buf;
 	char    base[32];
 	int             len;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	buf = NULL;     // quiet compiler warning
 
@@ -1580,16 +1709,19 @@ byte *COM_LoadFile (char *path, int usehunk)
 
 byte *COM_LoadHunkFile (char *path)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return COM_LoadFile (path, 1);
 }
 
 byte *COM_LoadTempFile (char *path)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return COM_LoadFile (path, 2);
 }
 
 void COM_LoadCacheFile (char *path, struct cache_user_s *cu)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	loadcache = cu;
 	COM_LoadFile (path, 3);
 }
@@ -1598,7 +1730,9 @@ void COM_LoadCacheFile (char *path, struct cache_user_s *cu)
 byte *COM_LoadStackFile (char *path, void *buffer, int bufsize)
 {
 	byte    *buf;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	loadbuf = (byte *)buffer;
 	loadsize = bufsize;
 	buf = COM_LoadFile (path, 4);
@@ -1616,7 +1750,7 @@ Loads the header and directory, adding the files at the beginning
 of the list so they override previous pack files.
 =================
 */
-pack_t *COM_LoadPackFile (char *packfile)
+pack_t *COM_LoadPackFile (const char *packfile)
 {
 	dpackheader_t   header;
 	int                             i;
@@ -1624,8 +1758,10 @@ pack_t *COM_LoadPackFile (char *packfile)
 	int                             numpackfiles;
 	pack_t                  *pack;
 	int                             packhandle;
-	dpackfile_t             info[MAX_FILES_IN_PACK];
+	static __RAM_1 dpackfile_t             info[MAX_FILES_IN_PACK];
 	unsigned short          crc;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (Sys_FileOpenRead (packfile, &packhandle) == -1)
 	{
@@ -1693,6 +1829,8 @@ void COM_AddGameDirectory (char *dir)
 	pack_t                  *pak;
 	char                    pakfile[MAX_OSPATH];
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	strcpy (com_gamedir, dir);
 
 //
@@ -1734,6 +1872,8 @@ void COM_InitFilesystem (void)
 	int             i, j;
 	char    basedir[MAX_OSPATH];
 	searchpath_t    *search;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 //
 // -basedir <path>
@@ -1824,4 +1964,49 @@ void COM_InitFilesystem (void)
 		proghack = true;
 }
 
+#ifdef TRACE_STACK
 
+#ifndef TRACE_MAX_TOT_STACK_DEPTH
+#define TRACE_MAX_TOT_STACK_DEPTH  ( 16 * 1024 )
+#endif
+
+#ifndef TRACE_MAX_FUNC_STACK_DEPTH
+#define TRACE_MAX_FUNC_STACK_DEPTH  ( 8 * 1024 )
+#endif
+
+static const void *stack_start, *stack_max;
+
+void COM_InitStackTrace(const void *stPtr)
+{
+	stack_start = stPtr;
+	stack_max = stPtr;
+}
+
+void COM_CaptureStack(void *stPtr, const char *fName)
+{
+	if (stPtr <= stack_max)
+	{
+		if (((unsigned long)stack_max - (unsigned long)stPtr) >= TRACE_MAX_FUNC_STACK_DEPTH)
+		{
+			Sys_Error("Stack overflow type A at %s (%u bytes)", fName, ((unsigned long)stack_max - (unsigned long)stPtr));
+		}
+
+		stack_max = stPtr;
+	}
+
+	if (stPtr <= stack_start)
+	{
+		if (((unsigned long)stack_start - (unsigned long)stPtr) >= TRACE_MAX_TOT_STACK_DEPTH)
+		{
+			Sys_Error("Stack overflow type B at %s (%u bytes)", fName, ((unsigned long)stack_start - (unsigned long)stPtr));
+		}
+	}
+
+}
+
+unsigned long COM_GetMaxStack(void)
+{
+	return (unsigned long)stack_start - (unsigned long)stack_max;
+}
+
+#endif

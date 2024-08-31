@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // client.h
 
+#include <stdio.h>
+#include <stdint.h>
+
 typedef struct
 {
 	vec3_t	viewangles;
@@ -102,7 +105,7 @@ typedef enum {
 ca_dedicated, 		// a dedicated server with no ability to start a client
 ca_disconnected, 	// full screen console with no connection
 ca_connected		// valid netcon, talking to a server
-} cactive_t;
+} u32_cactive_t;
 
 //
 // the client_static_t structure is persistant through an arbitrary number
@@ -110,7 +113,7 @@ ca_connected		// valid netcon, talking to a server
 //
 typedef struct
 {
-	cactive_t	state;
+	uint32_t	state;
 
 // personalization data sent to server	
 	char		mapstring[MAX_QPATH];
@@ -126,7 +129,7 @@ typedef struct
 	qboolean	demoplayback;
 	qboolean	timedemo;
 	int			forcetrack;			// -1 = use normal cd track
-	FILE		*demofile;
+	QFILE		*demofile;
 	int			td_lastframe;		// to meter out one message a frame
 	int			td_startframe;		// host_framecount at start
 	float		td_starttime;		// realtime at second frame of timedemo
@@ -336,7 +339,7 @@ void CL_BaseMove (usercmd_t *cmd);
 
 
 float CL_KeyState (kbutton_t *key);
-char *Key_KeynumToString (int keynum);
+const char *Key_KeynumToString (int keynum);
 
 //
 // cl_demo.c

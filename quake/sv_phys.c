@@ -63,6 +63,8 @@ void SV_CheckAllEnts (void)
 	int			e;
 	edict_t		*check;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // see if any solid entities are inside the final position
 	check = NEXT_EDICT(sv.edicts);
 	for (e=1 ; e<sv.num_edicts ; e++, check = NEXT_EDICT(check))
@@ -90,6 +92,8 @@ SV_CheckVelocity
 void SV_CheckVelocity (edict_t *ent)
 {
 	int		i;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 //
 // bound velocity
@@ -127,6 +131,8 @@ qboolean SV_RunThink (edict_t *ent)
 {
 	float	thinktime;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	thinktime = ent->v.nextthink;
 	if (thinktime <= 0 || thinktime > sv.time + host_frametime)
 		return true;
@@ -153,7 +159,9 @@ Two entities have touched, so run their touch functions
 void SV_Impact (edict_t *e1, edict_t *e2)
 {
 	int		old_self, old_other;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	old_self = pr_global_struct->self;
 	old_other = pr_global_struct->other;
 	
@@ -192,7 +200,9 @@ int ClipVelocity (vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 	float	backoff;
 	float	change;
 	int		i, blocked;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	blocked = 0;
 	if (normal[2] > 0)
 		blocked |= 1;		// floor
@@ -239,7 +249,9 @@ int SV_FlyMove (edict_t *ent, float time, trace_t *steptrace)
 	vec3_t		end;
 	float		time_left;
 	int			blocked;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	numbumps = 4;
 	
 	blocked = 0;
@@ -380,6 +392,8 @@ void SV_AddGravity (edict_t *ent)
 #else
 	eval_t	*val;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	val = GetEdictFieldValue(ent, "gravity");
 	if (val && val->_float)
 		ent_gravity = val->_float;
@@ -409,7 +423,9 @@ trace_t SV_PushEntity (edict_t *ent, vec3_t push)
 {
 	trace_t	trace;
 	vec3_t	end;
-		
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	VectorAdd (ent->v.origin, push, end);
 
 	if (ent->v.movetype == MOVETYPE_FLYMISSILE)
@@ -445,6 +461,8 @@ void SV_PushMove (edict_t *pusher, float movetime)
 	int			num_moved;
 	edict_t		*moved_edict[MAX_EDICTS];
 	vec3_t		moved_from[MAX_EDICTS];
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!pusher->v.velocity[0] && !pusher->v.velocity[1] && !pusher->v.velocity[2])
 	{
@@ -574,6 +592,8 @@ void SV_PushRotate (edict_t *pusher, float movetime)
 	vec3_t		moved_from[MAX_EDICTS];
 	vec3_t		org, org2;
 	vec3_t		forward, right, up;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!pusher->v.avelocity[0] && !pusher->v.avelocity[1] && !pusher->v.avelocity[2])
 	{
@@ -707,6 +727,8 @@ void SV_Physics_Pusher (edict_t *ent)
 	float	oldltime;
 	float	movetime;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	oldltime = ent->v.ltime;
 	
 	thinktime = ent->v.nextthink;
@@ -765,6 +787,8 @@ void SV_CheckStuck (edict_t *ent)
 	int		z;
 	vec3_t	org;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!SV_TestEntityPosition(ent))
 	{
 		VectorCopy (ent->v.origin, ent->v.oldorigin);
@@ -812,6 +836,8 @@ qboolean SV_CheckWater (edict_t *ent)
 #ifdef QUAKE2
 	int		truecont;
 #endif
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	point[0] = ent->v.origin[0];
 	point[1] = ent->v.origin[1];
@@ -869,7 +895,9 @@ void SV_WallFriction (edict_t *ent, trace_t *trace)
 	vec3_t		forward, right, up;
 	float		d, i;
 	vec3_t		into, side;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	AngleVectors (ent->v.v_angle, forward, right, up);
 	d = DotProduct (trace->plane.normal, forward);
 	
@@ -905,7 +933,9 @@ int SV_TryUnstick (edict_t *ent, vec3_t oldvel)
 	vec3_t	dir;
 	int		clip;
 	trace_t	steptrace;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	VectorCopy (ent->v.origin, oldorg);
 	VectorCopy (vec3_origin, dir);
 
@@ -963,7 +993,9 @@ void SV_WalkMove (edict_t *ent)
 	int			clip;
 	int			oldonground;
 	trace_t		steptrace, downtrace;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 //
 // do a regular slide move unless it looks like you ran into a step
 //
@@ -1058,6 +1090,8 @@ Player character actions
 */
 void SV_Physics_Client (edict_t	*ent, int num)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if ( ! svs.clients[num-1].active )
 		return;		// unconnected slot
 
@@ -1141,6 +1175,7 @@ Non moving objects can only think
 */
 void SV_Physics_None (edict_t *ent)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 // regular thinking
 	SV_RunThink (ent);
 }
@@ -1155,6 +1190,7 @@ Entities that are "stuck" to another entity
 */
 void SV_Physics_Follow (edict_t *ent)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 // regular thinking
 	SV_RunThink (ent);
 	VectorAdd (PROG_TO_EDICT(ent->v.aiment)->v.origin, ent->v.v_angle, ent->v.origin);
@@ -1171,6 +1207,7 @@ A moving object that doesn't obey physics
 */
 void SV_Physics_Noclip (edict_t *ent)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 // regular thinking
 	if (!SV_RunThink (ent))
 		return;
@@ -1208,6 +1245,9 @@ void SV_CheckWaterTransition (edict_t *ent)
 #else
 	cont = SV_PointContents (ent->v.origin);
 #endif
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!ent->v.watertype)
 	{	// just spawned here
 		ent->v.watertype = cont;
@@ -1257,6 +1297,9 @@ void SV_Physics_Toss (edict_t *ent)
 		VectorCopy(vec_origin, ent->v.basevelocity);
 	SV_CheckWater (ent);
 #endif
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	// regular thinking
 	if (!SV_RunThink (ent))
 		return;
@@ -1370,6 +1413,8 @@ void SV_Physics_Step (edict_t *ent)
 	float		friction;
 	edict_t		*groundentity;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	groundentity = PROG_TO_EDICT(ent->v.groundentity);
 	if ((int)groundentity->v.flags & FL_CONVEYOR)
 		VectorScale(groundentity->v.movedir, groundentity->v.speed, ent->v.basevelocity);
@@ -1469,6 +1514,8 @@ void SV_Physics_Step (edict_t *ent)
 {
 	qboolean	hitsound;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // freefall if not onground
 	if ( ! ((int)ent->v.flags & (FL_ONGROUND | FL_FLY | FL_SWIM) ) )
 	{
@@ -1508,6 +1555,8 @@ void SV_Physics (void)
 {
 	int		i;
 	edict_t	*ent;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // let the progs know that a new frame has started
 	pr_global_struct->self = EDICT_TO_PROG(sv.edicts);
@@ -1575,6 +1624,7 @@ trace_t SV_Trace_Toss (edict_t *ent, edict_t *ignore)
 //	extern particle_t	*active_particles, *free_particles;
 //	particle_t	*p;
 
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	save_frametime = host_frametime;
 	host_frametime = 0.05;

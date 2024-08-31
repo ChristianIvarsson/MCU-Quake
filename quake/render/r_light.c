@@ -33,7 +33,9 @@ R_AnimateLight
 void R_AnimateLight (void)
 {
 	int			i,j,k;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 //
 // light animations
 // 'm' is normal light, 'a' is no light, 'z' is double bright
@@ -72,7 +74,9 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 	float		dist;
 	msurface_t	*surf;
 	int			i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (node->contents < 0)
 		return;
 
@@ -117,6 +121,8 @@ void R_PushDlights (void)
 	int		i;
 	dlight_t	*l;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_dlightframecount = r_framecount + 1;	// because the count hasn't
 											//  advanced yet for this frame
 	l = cl_dlights;
@@ -152,6 +158,8 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 	byte		*lightmap;
 	unsigned	scale;
 	int			maps;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (node->contents < 0)
 		return -1;		// didn't hit anything
@@ -239,7 +247,9 @@ int R_LightPoint (vec3_t p)
 {
 	vec3_t		end;
 	int			r;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!cl.worldmodel->lightdata)
 		return 255;
 	

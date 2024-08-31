@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../quakedef.h"
+#include "../qfile.h"
 #include "r_local.h"
 
 #define MAX_PARTICLES			2048	// default max # of particles at one
@@ -47,6 +48,8 @@ void R_InitParticles (void)
 {
 	int		i;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	i = COM_CheckParm ("-particles");
 
 	if (i)
@@ -72,6 +75,8 @@ void R_DarkFieldParticles (entity_t *ent)
 	float		vel;
 	vec3_t		dir;
 	vec3_t		org;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	org[0] = ent->origin[0];
 	org[1] = ent->origin[1];
@@ -123,21 +128,25 @@ float	timescale = 0.01;
 
 void R_EntityParticles (entity_t *ent)
 {
-	int			count;
+	// int			count;
 	int			i;
 	particle_t	*p;
 	float		angle;
-	float		sr, sp, sy, cr, cp, cy;
+	// float		sr, sp, sy, cr, cp, cy;
+	float		sp, sy, cp, cy;
 	vec3_t		forward;
 	float		dist;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	dist  = 64;
-	count = 50;
+	// count = 50;
 
 	if ( avelocities[0][0] == 0 )
 	{
 		for ( i = 0; i < (NUMVERTEXNORMALS * 3); i++ )
 		{
+			// avelocities[0][i] = (rand() & 255) * 0.01;
 			((vec_t*)avelocities)[i] = (rand()&255) * 0.01;
 		}
 	}
@@ -152,8 +161,8 @@ void R_EntityParticles (entity_t *ent)
 		sp = sin(angle);
 		cp = cos(angle);
 		angle = cl.time * avelocities[i][2];
-		sr = sin(angle);
-		cr = cos(angle);
+		// sr = sin(angle);
+		// cr = cos(angle);
 	
 		forward[0] = cp*cy;
 		forward[1] = cp*sy;
@@ -185,7 +194,9 @@ R_ClearParticles
 void R_ClearParticles (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	free_particles = &particles[0];
 	active_particles = NULL;
 
@@ -197,13 +208,15 @@ void R_ClearParticles (void)
 
 void R_ReadPointFile_f (void)
 {
-	FILE	*f;
+	QFILE	*f;
 	vec3_t	org;
 	int		r;
 	int		c;
 	particle_t	*p;
 	char	name[MAX_OSPATH];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	sprintf (name,"maps/%s.pts", sv.name);
 
 	COM_FOpenFile (name, &f);
@@ -217,7 +230,7 @@ void R_ReadPointFile_f (void)
 	c = 0;
 	for ( ;; )
 	{
-		r = fscanf (f,"%f %f %f\n", &org[0], &org[1], &org[2]);
+		r = Qfscanf (f,"%f %f %f\n", &org[0], &org[1], &org[2]);
 		if (r != 3)
 			break;
 		c++;
@@ -239,7 +252,7 @@ void R_ReadPointFile_f (void)
 		VectorCopy (org, p->org);
 	}
 
-	fclose (f);
+	Qfclose (f);
 	Con_Printf ("%i points read\n", c);
 }
 
@@ -254,7 +267,9 @@ void R_ParseParticleEffect (void)
 {
 	vec3_t		org, dir;
 	int			i, count, msgcount, color;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<3 ; i++)
 		org[i] = MSG_ReadCoord ();
 	for (i=0 ; i<3 ; i++)
@@ -262,11 +277,11 @@ void R_ParseParticleEffect (void)
 	msgcount = MSG_ReadByte ();
 	color = MSG_ReadByte ();
 
-if (msgcount == 255)
-	count = 1024;
-else
-	count = msgcount;
-	
+	if (msgcount == 255)
+		count = 1024;
+	else
+		count = msgcount;
+
 	R_RunParticleEffect (org, dir, color, count);
 }
 	
@@ -280,7 +295,9 @@ void R_ParticleExplosion (vec3_t org)
 {
 	int			i, j;
 	particle_t	*p;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<1024 ; i++)
 	{
 		if (!free_particles)
@@ -326,6 +343,8 @@ void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength)
 	particle_t	*p;
 	int			colorMod = 0;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0; i<512; i++)
 	{
 		if (!free_particles)
@@ -358,7 +377,9 @@ void R_BlobExplosion (vec3_t org)
 {
 	int			i, j;
 	particle_t	*p;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<1024 ; i++)
 	{
 		if (!free_particles)
@@ -403,7 +424,9 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
 {
 	int			i, j;
 	particle_t	*p;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<count ; i++)
 	{
 		if (!free_particles)
@@ -465,6 +488,8 @@ void R_LavaSplash (vec3_t org)
 	float		vel;
 	vec3_t		dir;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=-16 ; i<16 ; i++)
 		for (j=-16 ; j<16 ; j++)
 			for (k=0 ; k<1 ; k++)
@@ -507,6 +532,8 @@ void R_TeleportSplash (vec3_t org)
 	float		vel;
 	vec3_t		dir;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=-16 ; i<16 ; i+=4)
 		for (j=-16 ; j<16 ; j+=4)
 			for (k=-24 ; k<32 ; k+=4)
@@ -544,6 +571,8 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
 	particle_t	*p;
 	int			dec;
 	static int	tracercount;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	VectorSubtract (end, start, vec);
 	len = VectorNormalize (vec);
@@ -657,7 +686,9 @@ void R_DrawParticles (void)
 	float			time1;
 	float			dvel;
 	float			frametime;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 #ifdef GLQUAKE
 	vec3_t			up, right;
 	float			scale;

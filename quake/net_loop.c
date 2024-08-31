@@ -28,6 +28,8 @@ qsocket_t	*loop_server = NULL;
 
 int Loop_Init (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.state == ca_dedicated)
 		return -1;
 	return 0;
@@ -36,16 +38,19 @@ int Loop_Init (void)
 
 void Loop_Shutdown (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 
 void Loop_Listen (qboolean state)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 
 void Loop_SearchForHosts (qboolean xmit)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (!sv.active)
 		return;
 
@@ -64,6 +69,7 @@ void Loop_SearchForHosts (qboolean xmit)
 
 qsocket_t *Loop_Connect (char *host)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (Q_strcmp(host,"local") != 0)
 		return NULL;
 	
@@ -104,6 +110,7 @@ qsocket_t *Loop_Connect (char *host)
 
 qsocket_t *Loop_CheckNewConnections (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (!localconnectpending)
 		return NULL;
 
@@ -120,6 +127,7 @@ qsocket_t *Loop_CheckNewConnections (void)
 
 static int IntAlign(int value)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	return (value + (sizeof(int) - 1)) & (~(sizeof(int) - 1));
 }
 
@@ -128,6 +136,8 @@ int Loop_GetMessage (qsocket_t *sock)
 {
 	int		ret;
 	int		length;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (sock->receiveMessageLength == 0)
 		return 0;
@@ -155,6 +165,8 @@ int Loop_SendMessage (qsocket_t *sock, sizebuf_t *data)
 {
 	byte *buffer;
 	int  *bufferLength;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!sock->driverdata)
 		return -1;
@@ -190,6 +202,8 @@ int Loop_SendUnreliableMessage (qsocket_t *sock, sizebuf_t *data)
 	byte *buffer;
 	int  *bufferLength;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!sock->driverdata)
 		return -1;
 
@@ -219,6 +233,7 @@ int Loop_SendUnreliableMessage (qsocket_t *sock, sizebuf_t *data)
 
 qboolean Loop_CanSendMessage (qsocket_t *sock)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (!sock->driverdata)
 		return false;
 	return sock->canSend;
@@ -227,12 +242,14 @@ qboolean Loop_CanSendMessage (qsocket_t *sock)
 
 qboolean Loop_CanSendUnreliableMessage (qsocket_t *sock)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	return true;
 }
 
 
 void Loop_Close (qsocket_t *sock)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (sock->driverdata)
 		((qsocket_t *)sock->driverdata)->driverdata = NULL;
 	sock->receiveMessageLength = 0;

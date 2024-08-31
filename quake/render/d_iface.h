@@ -33,7 +33,7 @@ typedef struct
 
 typedef enum {
 	pt_static, pt_grav, pt_slowgrav, pt_fire, pt_explode, pt_explode2, pt_blob, pt_blob2
-} ptype_t;
+} u32ptype_t;
 
 // !!! if this is changed, it must be changed in d_ifacea.h too !!!
 typedef struct particle_s
@@ -46,7 +46,7 @@ typedef struct particle_s
 	vec3_t		vel;
 	float		ramp;
 	float		die;
-	ptype_t		type;
+	uint32_t	type;
 } particle_t;
 
 #define PARTICLE_Z_CLIP	8.0

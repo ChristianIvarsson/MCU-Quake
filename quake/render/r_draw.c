@@ -50,6 +50,7 @@ qboolean		r_leftclipped, r_rightclipped;
 static qboolean	makeleftedge, makerightedge;
 qboolean		r_nearzionly;
 
+// #warning "Figure out if these can be in psram or not"
 int		sintable[SIN_BUFFER_SIZE];
 int		intsintable[SIN_BUFFER_SIZE];
 
@@ -87,6 +88,8 @@ void R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1)
 	int		v, v2, ceilv0;
 	float	scale, lzi0, u0, v0;
 	int		side;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (r_lastvertvalid)
 	{
@@ -261,6 +264,8 @@ void R_ClipEdge (mvertex_t *pv0, mvertex_t *pv1, clipplane_t *clip)
 	float		d0, d1, f;
 	mvertex_t	clipvert;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (clip)
 	{
 		do
@@ -364,6 +369,8 @@ void R_EmitCachedEdge (void)
 {
 	edge_t		*pedge_t;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	pedge_t = (edge_t *)((unsigned long)r_edges + r_pedge->cachededgeoffset);
 
 	if (!pedge_t->surfs[0])
@@ -392,6 +399,8 @@ void R_RenderFace (msurface_t *fa, int clipflags)
 	vec3_t		p_normal;
 	medge_t		*pedges, tedge;
 	clipplane_t	*pclip;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // skip out if no more surfs
 	if ((surface_p) >= surf_max)
@@ -591,6 +600,8 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 	medge_t		tedge;
 	clipplane_t	*pclip;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // skip out if no more surfs
 	if (surface_p >= surf_max)
 	{
@@ -705,10 +716,12 @@ void R_RenderPoly (msurface_t *fa, int clipflags)
 	clipplane_t	*pclip;
 	medge_t		*pedges;
 	mplane_t	*pplane;
-	mvertex_t	verts[2][100];	//FIXME: do real number
-	polyvert_t	pverts[100];	//FIXME: do real number, safely
+	static __RAM_1 mvertex_t	verts[2][100];	//FIXME: do real number
+	static __RAM_1 polyvert_t	pverts[100];	//FIXME: do real number, safely
 	int			vertpage, newverts, newpage, lastvert;
 	qboolean	visible;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // FIXME: clean this up and make it faster
 // FIXME: guard against running out of vertices
@@ -885,6 +898,8 @@ void R_ZDrawSubmodelPolys (model_t *pmodel)
 	msurface_t	*psurf;
 	float		dot;
 	mplane_t	*pplane;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
 	numsurfaces = pmodel->nummodelsurfaces;

@@ -36,6 +36,7 @@ D_Patch
 */
 void D_Patch (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 #if id386
 
 	static qboolean protectset8 = false;
@@ -59,6 +60,8 @@ D_ViewChanged
 void D_ViewChanged (void)
 {
 	int rowbytes;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (r_dowarp)
 		rowbytes = WARP_WIDTH;

@@ -83,7 +83,9 @@ float V_CalcRoll (vec3_t angles, vec3_t velocity)
 	float	sign;
 	float	side;
 	float	value;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	AngleVectors (angles, forward, right, up);
 	side = DotProduct (velocity, right);
 	sign = side < 0 ? -1 : 1;
@@ -113,7 +115,9 @@ float V_CalcBob (void)
 {
 	float	bob;
 	float	cycle;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	cycle = cl.time - (int)(cl.time/cl_bobcycle.value)*cl_bobcycle.value;
 	cycle /= cl_bobcycle.value;
 	if (cycle < cl_bobup.value)
@@ -145,6 +149,8 @@ cvar_t	v_centerspeed = {"v_centerspeed","500"};
 
 void V_StartPitchDrift (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 #if 1
 	if (cl.laststop == cl.time)
 	{
@@ -161,6 +167,7 @@ void V_StartPitchDrift (void)
 
 void V_StopPitchDrift (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	cl.laststop = cl.time;
 	cl.nodrift = true;
 	cl.pitchvel = 0;
@@ -182,6 +189,8 @@ lookspring is non 0, or when
 void V_DriftPitch (void)
 {
 	float		delta, move;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (noclip_anglehack || !cl.onground || cls.demoplayback )
 	{
@@ -268,7 +277,9 @@ float		v_blend[4];		// rgba 0.0 - 1.0
 void BuildGammaTable (float g)
 {
 	int		i, inf;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (g == 1.0)
 	{
 		for (i=0 ; i<256 ; i++)
@@ -295,7 +306,9 @@ V_CheckGamma
 qboolean V_CheckGamma (void)
 {
 	static float oldgammavalue;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (v_gamma.value == oldgammavalue)
 		return false;
 	oldgammavalue = v_gamma.value;
@@ -322,7 +335,9 @@ void V_ParseDamage (void)
 	entity_t	*ent;
 	float	side;
 	float	count;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	armor = MSG_ReadByte ();
 	blood = MSG_ReadByte ();
 	for (i=0 ; i<3 ; i++)
@@ -386,6 +401,7 @@ V_cshift_f
 */
 void V_cshift_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	cshift_empty.destcolor[0] = atoi(Cmd_Argv(1));
 	cshift_empty.destcolor[1] = atoi(Cmd_Argv(2));
 	cshift_empty.destcolor[2] = atoi(Cmd_Argv(3));
@@ -402,6 +418,7 @@ When you run over an item, the server sends this command
 */
 void V_BonusFlash_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	cl.cshifts[CSHIFT_BONUS].destcolor[0] = 215;
 	cl.cshifts[CSHIFT_BONUS].destcolor[1] = 186;
 	cl.cshifts[CSHIFT_BONUS].destcolor[2] = 69;
@@ -417,6 +434,7 @@ Underwater, lava, etc each has a color shift
 */
 void V_SetContentsColor (int contents)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	switch (contents)
 	{
 	case CONTENTS_EMPTY:
@@ -441,6 +459,7 @@ V_CalcPowerupCshift
 */
 void V_CalcPowerupCshift (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (cl.items & IT_QUAD)
 	{
 		cl.cshifts[CSHIFT_POWERUP].destcolor[0] = 0;
@@ -483,6 +502,8 @@ void V_CalcBlend (void)
 {
 	float	r, g, b, a, a2;
 	int		j;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	r = 0;
 	g = 0;
@@ -533,6 +554,8 @@ void V_UpdatePalette (void)
 	float	r,g,b,a;
 	int		ir, ig, ib;
 	qboolean force;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	V_CalcPowerupCshift ();
 	
@@ -620,6 +643,8 @@ void V_UpdatePalette (void)
 	int		r,g,b;
 	qboolean force;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	V_CalcPowerupCshift ();
 	
 	new = false;
@@ -691,6 +716,8 @@ void V_UpdatePalette (void)
 
 float angledelta (float a)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	a = anglemod(a);
 	if (a > 180)
 		a -= 360;
@@ -707,7 +734,9 @@ void CalcGunAngle (void)
 	float	yaw, pitch, move;
 	static float oldyaw = 0;
 	static float oldpitch = 0;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	yaw = r_refdef.viewangles[YAW];
 	pitch = -r_refdef.viewangles[PITCH];
 
@@ -763,7 +792,9 @@ V_BoundOffsets
 void V_BoundOffsets (void)
 {
 	entity_t	*ent;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = &cl_entities[cl.viewentity];
 
 // absolutely bound refresh reletive to entity clipping hull
@@ -792,6 +823,7 @@ Idle swaying
 */
 void V_AddIdle (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	r_refdef.viewangles[ROLL] += v_idlescale.value * sin(cl.time*v_iroll_cycle.value) * v_iroll_level.value;
 	r_refdef.viewangles[PITCH] += v_idlescale.value * sin(cl.time*v_ipitch_cycle.value) * v_ipitch_level.value;
 	r_refdef.viewangles[YAW] += v_idlescale.value * sin(cl.time*v_iyaw_cycle.value) * v_iyaw_level.value;
@@ -808,7 +840,9 @@ Roll is induced by movement and damage
 void V_CalcViewRoll (void)
 {
 	float		side;
-		
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	side = V_CalcRoll (cl_entities[cl.viewentity].angles, cl.velocity);
 	r_refdef.viewangles[ROLL] += side;
 
@@ -838,6 +872,8 @@ void V_CalcIntermissionRefdef (void)
 {
 	entity_t	*ent, *view;
 	float		old;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // ent is the player model (visible when out of body)
 	ent = &cl_entities[cl.viewentity];
@@ -869,6 +905,8 @@ void V_CalcRefdef (void)
 	vec3_t		angles;
 	float		bob;
 	static float oldz = 0;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	V_DriftPitch ();
 
@@ -957,26 +995,30 @@ void V_CalcRefdef (void)
 // set up the refresh position
 	VectorAdd (r_refdef.viewangles, cl.punchangle, r_refdef.viewangles);
 
-// smooth out stair step ups
-if (cl.onground && ent->origin[2] - oldz > 0)
-{
-	float steptime;
+	// smooth out stair step ups
+	if (cl.onground && ent->origin[2] - oldz > 0)
+	{
+		float steptime;
 	
-	steptime = cl.time - cl.oldtime;
-	if (steptime < 0)
+		steptime = cl.time - cl.oldtime;
+		if (steptime < 0)
+		{
 //FIXME		I_Error ("steptime < 0");
-		steptime = 0;
+			steptime = 0;
+		}
 
-	oldz += steptime * 80;
-	if (oldz > ent->origin[2])
+		oldz += steptime * 80;
+		if (oldz > ent->origin[2])
+			oldz = ent->origin[2];
+		if (ent->origin[2] - oldz > 12)
+			oldz = ent->origin[2] - 12;
+		r_refdef.vieworg[2] += oldz - ent->origin[2];
+		view->origin[2] += oldz - ent->origin[2];
+	}
+	else
+	{
 		oldz = ent->origin[2];
-	if (ent->origin[2] - oldz > 12)
-		oldz = ent->origin[2] - 12;
-	r_refdef.vieworg[2] += oldz - ent->origin[2];
-	view->origin[2] += oldz - ent->origin[2];
-}
-else
-	oldz = ent->origin[2];
+	}
 
 	if (chase_active.value)
 		Chase_Update ();
@@ -994,6 +1036,8 @@ extern vrect_t	scr_vrect;
 
 void V_RenderView (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (con_forcedup)
 		return;
 
@@ -1070,6 +1114,8 @@ V_Init
 */
 void V_Init (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	Cmd_AddCommand ("v_cshift", V_cshift_f);	
 	Cmd_AddCommand ("bf", V_BonusFlash_f);
 	Cmd_AddCommand ("centerview", V_StartPitchDrift);

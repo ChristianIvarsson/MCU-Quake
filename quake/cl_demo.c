@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "quakedef.h"
+#include "qfile.h"
 
 void CL_FinishTimeDemo (void);
 
@@ -44,10 +45,12 @@ Called when a demo file runs out, or the user starts a game
 */
 void CL_StopPlayback (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!cls.demoplayback)
 		return;
 
-	fclose (cls.demofile);
+	Qfclose (cls.demofile);
 	cls.demoplayback = false;
 	cls.demofile = NULL;
 	cls.state = ca_disconnected;
@@ -69,15 +72,17 @@ void CL_WriteDemoMessage (void)
 	int		i;
 	float	f;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	len = LittleLong (net_message.cursize);
-	fwrite (&len, 4, 1, cls.demofile);
+	Qfwrite (&len, 4, 1, cls.demofile);
 	for (i=0 ; i<3 ; i++)
 	{
 		f = LittleFloat (cl.viewangles[i]);
-		fwrite (&f, 4, 1, cls.demofile);
+		Qfwrite (&f, 4, 1, cls.demofile);
 	}
-	fwrite (net_message.data, net_message.cursize, 1, cls.demofile);
-	fflush (cls.demofile);
+	Qfwrite (net_message.data, net_message.cursize, 1, cls.demofile);
+	Qfflush (cls.demofile);
 }
 
 /*
@@ -91,7 +96,9 @@ int CL_GetMessage (void)
 {
 	int		r, i;
 	float	f;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if	(cls.demoplayback)
 	{
 	// decide if it is time to grab the next message		
@@ -114,18 +121,18 @@ int CL_GetMessage (void)
 		}
 		
 	// get the next message
-		fread (&net_message.cursize, 4, 1, cls.demofile);
+		Qfread (&net_message.cursize, 4, 1, cls.demofile);
 		VectorCopy (cl.mviewangles[0], cl.mviewangles[1]);
 		for (i=0 ; i<3 ; i++)
 		{
-			r = fread (&f, 4, 1, cls.demofile);
+			r = Qfread (&f, 4, 1, cls.demofile);
 			cl.mviewangles[0][i] = LittleFloat (f);
 		}
 		
 		net_message.cursize = LittleLong (net_message.cursize);
 		if (net_message.cursize > MAX_MSGLEN)
 			Sys_Error ("Demo message > MAX_MSGLEN");
-		r = fread (net_message.data, net_message.cursize, 1, cls.demofile);
+		r = Qfread (net_message.data, net_message.cursize, 1, cls.demofile);
 		if (r != 1)
 		{
 			CL_StopPlayback ();
@@ -165,6 +172,8 @@ stop recording a demo
 */
 void CL_Stop_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source != src_command)
 		return;
 
@@ -180,7 +189,7 @@ void CL_Stop_f (void)
 	CL_WriteDemoMessage ();
 
 // finish up
-	fclose (cls.demofile);
+	Qfclose (cls.demofile);
 	cls.demofile = NULL;
 	cls.demorecording = false;
 	Con_Printf ("Completed demo\n");
@@ -196,8 +205,10 @@ record <demoname> <map> [cd track]
 void CL_Record_f (void)
 {
 	int		c;
-	char	name[MAX_OSPATH];
+	char	name[MAX_OSPATH + 14];
 	int		track;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source != src_command)
 		return;
@@ -230,7 +241,7 @@ void CL_Record_f (void)
 	else
 		track = -1;	
 
-	sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
+	snprintf (name, sizeof(name), "%s/%s", com_gamedir, Cmd_Argv(1));
 	
 //
 // start the map up
@@ -244,7 +255,7 @@ void CL_Record_f (void)
 	COM_DefaultExtension (name, ".dem");
 
 	Con_Printf ("recording to %s.\n", name);
-	cls.demofile = fopen (name, "wb");
+	cls.demofile = Qfopen (name, "wb");
 	if (!cls.demofile)
 	{
 		Con_Printf ("ERROR: couldn't open.\n");
@@ -252,7 +263,7 @@ void CL_Record_f (void)
 	}
 
 	cls.forcetrack = track;
-	fprintf (cls.demofile, "%i\n", cls.forcetrack);
+	Qfprintf (cls.demofile, "%i\n", cls.forcetrack);
 	
 	cls.demorecording = true;
 }
@@ -270,6 +281,8 @@ void CL_PlayDemo_f (void)
 	char	name[256];
 	int c;
 	qboolean neg = false;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (cmd_source != src_command)
 		return;
@@ -304,7 +317,7 @@ void CL_PlayDemo_f (void)
 	cls.state = ca_connected;
 	cls.forcetrack = 0;
 
-	while ((c = getc(cls.demofile)) != '\n')
+	while ((c = Qfgetc(cls.demofile)) != '\n')
 		if (c == '-')
 			neg = true;
 		else
@@ -312,8 +325,8 @@ void CL_PlayDemo_f (void)
 
 	if (neg)
 		cls.forcetrack = -cls.forcetrack;
-// ZOID, fscanf is evil
-//	fscanf (cls.demofile, "%i\n", &cls.forcetrack);
+// ZOID, Qfscanf is evil
+//	Qfscanf (cls.demofile, "%i\n", &cls.forcetrack);
 }
 
 /*
@@ -326,7 +339,9 @@ void CL_FinishTimeDemo (void)
 {
 	int		frames;
 	float	time;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	cls.timedemo = false;
 	
 // the first frame didn't count
@@ -346,6 +361,8 @@ timedemo [demoname]
 */
 void CL_TimeDemo_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cmd_source != src_command)
 		return;
 

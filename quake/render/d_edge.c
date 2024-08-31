@@ -43,6 +43,7 @@ D_DrawPoly
 */
 void D_DrawPoly (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 // this driver takes spans, not polygons
 }
 
@@ -55,6 +56,8 @@ D_MipLevelForScale
 int D_MipLevelForScale (float scale)
 {
 	int		lmiplevel;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (scale >= d_scalemip[0] )
 		lmiplevel = 0;
@@ -85,7 +88,9 @@ void D_DrawSolidSurface (surf_t *surf, int color)
 	espan_t	*span;
 	byte	*pdest;
 	int		u, u2, pix;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	pix = (color<<24) | (color<<16) | (color<<8) | color;
 	for (span=surf->spans ; span ; span=span->pnext)
 	{
@@ -122,13 +127,15 @@ D_CalcGradients
 */
 void D_CalcGradients (msurface_t *pface)
 {
-	mplane_t	*pplane;
+	// mplane_t	*pplane;
 	float		mipscale;
 	vec3_t		p_temp1;
 	vec3_t		p_saxis, p_taxis;
 	float		t;
 
-	pplane = pface->plane;
+	DO_STACK_TRACE( __FUNCTION__ )
+
+	// pplane = pface->plane;
 
 	mipscale = 1.0 / (float)(1 << miplevel);
 
@@ -178,6 +185,8 @@ void D_DrawSurfaces (void)
 	surfcache_t		*pcurrentcache;
 	vec3_t			world_transformed_modelorg;
 	vec3_t			local_modelorg;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	currententity = &cl_entities[0];
 	TransformVector (modelorg, transformed_modelorg);

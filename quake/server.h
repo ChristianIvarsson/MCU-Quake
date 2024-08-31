@@ -30,7 +30,7 @@ typedef struct
 
 //=============================================================================
 
-typedef enum {ss_loading, ss_active} server_state_t;
+typedef enum {ss_loading, ss_active} u32server_state_t;
 
 typedef struct
 {
@@ -59,7 +59,7 @@ typedef struct
 	edict_t		*edicts;			// can NOT be array indexed, because
 									// edict_t is variable sized, but can
 									// be used to reference the world ent
-	server_state_t	state;			// some actions are only valid during load
+	uint32_t	state;			// some actions are only valid during load
 
 	sizebuf_t	datagram;
 	byte		datagram_buf[MAX_DATAGRAM];
@@ -235,8 +235,8 @@ void SV_AddUpdates (void);
 void SV_ClientThink (void);
 void SV_AddClientToServer (struct qsocket_s	*ret);
 
-void SV_ClientPrintf (char *fmt, ...);
-void SV_BroadcastPrintf (char *fmt, ...);
+void SV_ClientPrintf (const char *fmt, ...);
+void SV_BroadcastPrintf (const char *fmt, ...);
 
 void SV_Physics (void);
 

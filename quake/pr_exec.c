@@ -47,7 +47,7 @@ int			pr_xstatement;
 
 int		pr_argc;
 
-char *pr_opnames[] =
+const char *pr_opnames[] =
 {
 "DONE",
 
@@ -136,8 +136,8 @@ char *pr_opnames[] =
 "BITOR"
 };
 
-char *PR_GlobalString (int ofs);
-char *PR_GlobalStringNoContents (int ofs);
+const char *PR_GlobalString (int ofs);
+const char *PR_GlobalStringNoContents (int ofs);
 
 
 //=============================================================================
@@ -150,7 +150,9 @@ PR_PrintStatement
 void PR_PrintStatement (dstatement_t *s)
 {
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if ( (unsigned)s->op < sizeof(pr_opnames)/sizeof(pr_opnames[0]))
 	{
 		Con_Printf ("%s ",  pr_opnames[s->op]);
@@ -191,7 +193,9 @@ void PR_StackTrace (void)
 {
 	dfunction_t	*f;
 	int			i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (pr_depth == 0)
 	{
 		Con_Printf ("<NO STACK>\n");
@@ -225,7 +229,9 @@ void PR_Profile_f (void)
 	int			max;
 	int			num;
 	int			i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	num = 0;	
 	do
 	{
@@ -263,6 +269,8 @@ void PR_RunError (char *error, ...)
 	va_list		argptr;
 	char		string[1024];
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,error);
 	vsprintf (string,error,argptr);
 	va_end (argptr);
@@ -294,6 +302,8 @@ Returns the new program statement counter
 int PR_EnterFunction (dfunction_t *f)
 {
 	int		i, j, c, o;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	pr_stack[pr_depth].s = pr_xstatement;
 	pr_stack[pr_depth].f = pr_xfunction;	
@@ -334,6 +344,8 @@ int PR_LeaveFunction (void)
 {
 	int		i, c;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (pr_depth <= 0)
 		Sys_Error ("prog stack underflow");
 
@@ -369,6 +381,8 @@ void PR_ExecuteProgram (func_t fnum)
 	edict_t	*ed;
 	int		exitdepth;
 	eval_t	*ptr;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!fnum || fnum >= progs->numfunctions)
 	{

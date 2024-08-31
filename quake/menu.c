@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include "quakedef.h"
+#include "qfile.h"
 
 #ifdef _WIN32
 #include "winquake.h"
@@ -111,11 +112,13 @@ Draws one solid graphics character
 */
 void M_DrawCharacter (int cx, int line, int num)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	Draw_Character ( cx + ((vid.width - 320)>>1), line, num);
 }
 
-void M_Print (int cx, int cy, char *str)
+void M_Print (int cx, int cy, const char *str)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	while (*str)
 	{
 		M_DrawCharacter (cx, cy, (*str)+128);
@@ -126,6 +129,7 @@ void M_Print (int cx, int cy, char *str)
 
 void M_PrintWhite (int cx, int cy, char *str)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	while (*str)
 	{
 		M_DrawCharacter (cx, cy, *str);
@@ -136,11 +140,13 @@ void M_PrintWhite (int cx, int cy, char *str)
 
 void M_DrawTransPic (int x, int y, qpic_t *pic)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	Draw_TransPic (x + ((vid.width - 320)>>1), y, pic);
 }
 
 void M_DrawPic (int x, int y, qpic_t *pic)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	Draw_Pic (x + ((vid.width - 320)>>1), y, pic);
 }
 
@@ -151,6 +157,8 @@ void M_BuildTranslationTable(int top, int bottom)
 {
 	int		j;
 	byte	*dest, *source;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	for (j = 0; j < 256; j++)
 		identityTable[j] = j;
@@ -174,6 +182,7 @@ void M_BuildTranslationTable(int top, int bottom)
 
 void M_DrawTransPicTranslate (int x, int y, qpic_t *pic)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	Draw_TransPicTranslate (x + ((vid.width - 320)>>1), y, pic, translationTable);
 }
 
@@ -183,6 +192,8 @@ void M_DrawTextBox (int x, int y, int width, int lines)
 	qpic_t	*p;
 	int		cx, cy;
 	int		n;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	// draw left side
 	cx = x;
@@ -244,6 +255,8 @@ M_ToggleMenu_f
 */
 void M_ToggleMenu_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	m_entersound = true;
 
 	if (key_dest == key_menu)
@@ -277,6 +290,8 @@ int	m_main_cursor;
 
 void M_Menu_Main_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (key_dest != key_menu)
 	{
 		m_save_demonum = cls.demonum;
@@ -293,6 +308,8 @@ void M_Main_Draw (void)
 	int		f;
 	qpic_t	*p;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/ttl_main.lmp");
 	M_DrawPic ( (320-p->width)/2, 4, p);
@@ -306,6 +323,8 @@ void M_Main_Draw (void)
 
 void M_Main_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (key)
 	{
 	case K_ESCAPE:
@@ -365,6 +384,7 @@ int	m_singleplayer_cursor;
 
 void M_Menu_SinglePlayer_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_singleplayer;
 	m_entersound = true;
@@ -375,6 +395,8 @@ void M_SinglePlayer_Draw (void)
 {
 	int		f;
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/ttl_sgl.lmp");
@@ -389,6 +411,8 @@ void M_SinglePlayer_Draw (void)
 
 void M_SinglePlayer_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (key)
 	{
 	case K_ESCAPE:
@@ -447,19 +471,25 @@ void M_ScanSaves (void)
 {
 	int		i, j;
 	char	name[MAX_OSPATH];
-	FILE	*f;
+	QFILE	*f;
 	int		version;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<MAX_SAVEGAMES ; i++)
 	{
 		strcpy (m_filenames[i], "--- UNUSED SLOT ---");
 		loadable[i] = false;
-		sprintf (name, "%s/s%i.sav", com_gamedir, i);
-		f = fopen (name, "r");
+		if ( snprintf (name, sizeof(name), "%s/s%i.sav", com_gamedir, (uint8_t)i) < 0 )
+		{
+			Con_Printf ("%s had to truncate\n", __func__);
+		}
+
+		f = Qfopen (name, "r");
 		if (!f)
 			continue;
-		fscanf (f, "%i\n", &version);
-		fscanf (f, "%79s\n", name);
+		Qfscanf (f, "%i\n", &version);
+		Qfscanf (f, "%79s\n", name);
 		strncpy (m_filenames[i], name, sizeof(m_filenames[i])-1);
 
 	// change _ back to space
@@ -467,12 +497,13 @@ void M_ScanSaves (void)
 			if (m_filenames[i][j] == '_')
 				m_filenames[i][j] = ' ';
 		loadable[i] = true;
-		fclose (f);
+		Qfclose (f);
 	}
 }
 
 void M_Menu_Load_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	m_entersound = true;
 	m_state = m_load;
 	key_dest = key_menu;
@@ -482,6 +513,7 @@ void M_Menu_Load_f (void)
 
 void M_Menu_Save_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (!sv.active)
 		return;
 	if (cl.intermission)
@@ -500,6 +532,8 @@ void M_Load_Draw (void)
 	int		i;
 	qpic_t	*p;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	p = Draw_CachePic ("gfx/p_load.lmp");
 	M_DrawPic ( (320-p->width)/2, 4, p);
 
@@ -516,6 +550,8 @@ void M_Save_Draw (void)
 	int		i;
 	qpic_t	*p;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	p = Draw_CachePic ("gfx/p_save.lmp");
 	M_DrawPic ( (320-p->width)/2, 4, p);
 
@@ -529,6 +565,7 @@ void M_Save_Draw (void)
 
 void M_Load_Key (int k)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	switch (k)
 	{
 	case K_ESCAPE:
@@ -571,6 +608,7 @@ void M_Load_Key (int k)
 
 void M_Save_Key (int k)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	switch (k)
 	{
 	case K_ESCAPE:
@@ -610,6 +648,7 @@ int	m_multiplayer_cursor;
 
 void M_Menu_MultiPlayer_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_multiplayer;
 	m_entersound = true;
@@ -620,6 +659,8 @@ void M_MultiPlayer_Draw (void)
 {
 	int		f;
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -638,6 +679,8 @@ void M_MultiPlayer_Draw (void)
 
 void M_MultiPlayer_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (key)
 	{
 	case K_ESCAPE:
@@ -694,6 +737,8 @@ int		setup_bottom;
 
 void M_Menu_Setup_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_menu;
 	m_state = m_setup;
 	m_entersound = true;
@@ -707,6 +752,8 @@ void M_Menu_Setup_f (void)
 void M_Setup_Draw (void)
 {
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -745,6 +792,8 @@ void M_Setup_Draw (void)
 void M_Setup_Key (int k)
 {
 	int			l;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	switch (k)
 	{
@@ -858,7 +907,7 @@ int	m_net_cursor;
 int m_net_items;
 int m_net_saveHeight;
 
-char *net_helpMessage [] =
+const char *net_helpMessage [] =
 {
 /* .........1.........2.... */
   "                        ",
@@ -884,6 +933,8 @@ char *net_helpMessage [] =
 
 void M_Menu_Net_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_menu;
 	m_state = m_net;
 	m_entersound = true;
@@ -900,6 +951,8 @@ void M_Net_Draw (void)
 {
 	int		f;
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -977,6 +1030,8 @@ void M_Net_Draw (void)
 
 void M_Net_Key (int k)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 again:
 	switch (k)
 	{
@@ -1048,6 +1103,8 @@ int		options_cursor;
 
 void M_Menu_Options_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_menu;
 	m_state = m_options;
 	m_entersound = true;
@@ -1064,6 +1121,8 @@ void M_Menu_Options_f (void)
 void M_AdjustSliders (int dir)
 {
 	S_LocalSound ("misc/menu3.wav");
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	switch (options_cursor)
 	{
@@ -1150,6 +1209,8 @@ void M_DrawSlider (int x, int y, float range)
 {
 	int	i;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (range < 0)
 		range = 0;
 	if (range > 1)
@@ -1163,6 +1224,8 @@ void M_DrawSlider (int x, int y, float range)
 
 void M_DrawCheckbox (int x, int y, int on)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 #if 0
 	if (on)
 		M_DrawCharacter (x, y, 131);
@@ -1179,6 +1242,8 @@ void M_Options_Draw (void)
 {
 	float		r;
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_option.lmp");
@@ -1238,6 +1303,8 @@ void M_Options_Draw (void)
 
 void M_Options_Key (int k)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (k)
 	{
 	case K_ESCAPE:
@@ -1312,7 +1379,7 @@ void M_Options_Key (int k)
 //=============================================================================
 /* KEYS MENU */
 
-char *bindnames[][2] =
+const char *bindnames[][2] =
 {
 {"+attack", 		"attack"},
 {"impulse 10", 		"change weapon"},
@@ -1341,18 +1408,21 @@ int		bind_grab;
 
 void M_Menu_Keys_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_keys;
 	m_entersound = true;
 }
 
 
-void M_FindKeysForCommand (char *command, int *twokeys)
+void M_FindKeysForCommand (const char *command, int *twokeys)
 {
 	int		count;
 	int		j;
 	int		l;
 	char	*b;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	twokeys[0] = twokeys[1] = -1;
 	l = strlen(command);
@@ -1373,11 +1443,13 @@ void M_FindKeysForCommand (char *command, int *twokeys)
 	}
 }
 
-void M_UnbindCommand (char *command)
+void M_UnbindCommand (const char *command)
 {
 	int		j;
 	int		l;
 	char	*b;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	l = strlen(command);
 
@@ -1394,11 +1466,13 @@ void M_UnbindCommand (char *command)
 
 void M_Keys_Draw (void)
 {
-	int		i, l;
+	int		i; // , l;
 	int		keys[2];
-	char	*name;
+	const char	*name;
 	int		x, y;
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	p = Draw_CachePic ("gfx/ttl_cstm.lmp");
 	M_DrawPic ( (320-p->width)/2, 4, p);
@@ -1415,7 +1489,7 @@ void M_Keys_Draw (void)
 
 		M_Print (16, y, bindnames[i][1]);
 
-		l = strlen (bindnames[i][0]);
+		// l = strlen (bindnames[i][0]);
 
 		M_FindKeysForCommand (bindnames[i][0], keys);
 
@@ -1447,6 +1521,8 @@ void M_Keys_Key (int k)
 {
 	char	cmd[80];
 	int		keys[2];
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (bind_grab)
 	{	// defining a key
@@ -1508,6 +1584,7 @@ void M_Keys_Key (int k)
 
 void M_Menu_Video_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_video;
 	m_entersound = true;
@@ -1516,12 +1593,14 @@ void M_Menu_Video_f (void)
 
 void M_Video_Draw (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	(*vid_menudrawfn) ();
 }
 
 
 void M_Video_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	(*vid_menukeyfn) (key);
 }
 
@@ -1534,6 +1613,7 @@ int		help_page;
 
 void M_Menu_Help_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_help;
 	m_entersound = true;
@@ -1544,12 +1624,14 @@ void M_Menu_Help_f (void)
 
 void M_Help_Draw (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	M_DrawPic (0, 0, Draw_CachePic ( va("gfx/help%i.lmp", help_page)) );
 }
 
 
 void M_Help_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	switch (key)
 	{
 	case K_ESCAPE:
@@ -1581,7 +1663,7 @@ int		m_quit_prevstate;
 qboolean	wasInMenus;
 
 #ifndef	_WIN32
-char *quitMessage [] = 
+const char *quitMessage [] = 
 {
 /* .........1.........2.... */
   "  Are you gonna quit    ",
@@ -1628,6 +1710,7 @@ char *quitMessage [] =
 
 void M_Menu_Quit_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (m_state == m_quit)
 		return;
 	wasInMenus = (key_dest == key_menu);
@@ -1641,6 +1724,7 @@ void M_Menu_Quit_f (void)
 
 void M_Quit_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	switch (key)
 	{
 	case K_ESCAPE:
@@ -1673,6 +1757,7 @@ void M_Quit_Key (int key)
 
 void M_Quit_Draw (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (wasInMenus)
 	{
 		m_state = m_quit_prevstate;
@@ -1737,6 +1822,8 @@ void M_Menu_SerialConfig_f (void)
 	int		baudrate;
 	qboolean	useModem;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_menu;
 	m_state = m_serialconfig;
 	m_entersound = true;
@@ -1777,6 +1864,8 @@ void M_SerialConfig_Draw (void)
 	int		basex;
 	char	*startJoin;
 	char	*directModem;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -1841,6 +1930,8 @@ void M_SerialConfig_Draw (void)
 void M_SerialConfig_Key (int key)
 {
 	int		l;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	switch (key)
 	{
@@ -1990,16 +2081,20 @@ forward:
 	}
 
 	if (DirectConfig && (serialConfig_cursor == 3 || serialConfig_cursor == 4))
+	{
 		if (key == K_UPARROW)
 			serialConfig_cursor = 2;
 		else
 			serialConfig_cursor = 5;
+	}
 
 	if (SerialConfig && StartingGame && serialConfig_cursor == 4)
+	{
 		if (key == K_UPARROW)
 			serialConfig_cursor = 3;
 		else
 			serialConfig_cursor = 5;
+	}
 }
 
 //=============================================================================
@@ -2016,6 +2111,7 @@ char	modemConfig_hangup [16];
 
 void M_Menu_ModemConfig_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_modemconfig;
 	m_entersound = true;
@@ -2027,6 +2123,8 @@ void M_ModemConfig_Draw (void)
 {
 	qpic_t	*p;
 	int		basex;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -2067,6 +2165,8 @@ void M_ModemConfig_Draw (void)
 void M_ModemConfig_Key (int key)
 {
 	int		l;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	switch (key)
 	{
@@ -2187,6 +2287,8 @@ char	lanConfig_joinname[22];
 
 void M_Menu_LanConfig_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_menu;
 	m_state = m_lanconfig;
 	m_entersound = true;
@@ -2213,6 +2315,8 @@ void M_LanConfig_Draw (void)
 	int		basex;
 	char	*startJoin;
 	char	*protocol;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -2269,6 +2373,8 @@ void M_LanConfig_Draw (void)
 void M_LanConfig_Key (int key)
 {
 	int		l;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	switch (key)
 	{
@@ -2363,10 +2469,12 @@ void M_LanConfig_Key (int key)
 	}
 
 	if (StartingGame && lanConfig_cursor == 2)
+	{
 		if (key == K_UPARROW)
 			lanConfig_cursor = 1;
 		else
 			lanConfig_cursor = 0;
+	}
 
 	l =  Q_atoi(lanConfig_portname);
 	if (l > 65535)
@@ -2381,11 +2489,11 @@ void M_LanConfig_Key (int key)
 
 typedef struct
 {
-	char	*name;
-	char	*description;
+	const char	*name;
+	const char	*description;
 } level_t;
 
-level_t		levels[] =
+const level_t		levels[] =
 {
 	{"start", "Entrance"},	// 0
 
@@ -2434,7 +2542,7 @@ level_t		levels[] =
 };
 
 //MED 01/06/97 added hipnotic levels
-level_t     hipnoticlevels[] =
+const level_t     hipnoticlevels[] =
 {
    {"start", "Command HQ"},  // 0
 
@@ -2463,7 +2571,7 @@ level_t     hipnoticlevels[] =
 
 //PGM 01/07/97 added rogue levels
 //PGM 03/02/97 added dmatch level
-level_t		roguelevels[] =
+const level_t		roguelevels[] =
 {
 	{"start",	"Split Decision"},
 	{"r1m1",	"Deviant's Domain"},
@@ -2486,12 +2594,12 @@ level_t		roguelevels[] =
 
 typedef struct
 {
-	char	*description;
-	int		firstLevel;
-	int		levels;
+	const char	*description;
+	const int		firstLevel;
+	const int		levels;
 } episode_t;
 
-episode_t	episodes[] =
+const episode_t	episodes[] =
 {
 	{"Welcome to Quake", 0, 1},
 	{"Doomed Dimension", 1, 8},
@@ -2503,7 +2611,7 @@ episode_t	episodes[] =
 };
 
 //MED 01/06/97  added hipnotic episodes
-episode_t   hipnoticepisodes[] =
+const episode_t   hipnoticepisodes[] =
 {
    {"Scourge of Armagon", 0, 1},
    {"Fortress of the Dead", 1, 5},
@@ -2515,7 +2623,7 @@ episode_t   hipnoticepisodes[] =
 
 //PGM 01/07/97 added rogue episodes
 //PGM 03/02/97 added dmatch episode
-episode_t	rogueepisodes[] =
+const episode_t	rogueepisodes[] =
 {
 	{"Introduction", 0, 1},
 	{"Hell's Fortress", 1, 7},
@@ -2531,6 +2639,7 @@ double m_serverInfoMessageTime;
 
 void M_Menu_GameOptions_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_gameoptions;
 	m_entersound = true;
@@ -2549,6 +2658,8 @@ void M_GameOptions_Draw (void)
 {
 	qpic_t	*p;
 	int		x;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
 	p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -2674,6 +2785,8 @@ void M_NetStart_Change (int dir)
 {
 	int count;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (gameoptions_cursor)
 	{
 	case 1:
@@ -2774,6 +2887,8 @@ void M_NetStart_Change (int dir)
 
 void M_GameOptions_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (key)
 	{
 	case K_ESCAPE:
@@ -2841,6 +2956,7 @@ double		searchCompleteTime;
 
 void M_Menu_Search_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_search;
 	m_entersound = false;
@@ -2856,6 +2972,8 @@ void M_Search_Draw (void)
 {
 	qpic_t	*p;
 	int x;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	p = Draw_CachePic ("gfx/p_multi.lmp");
 	M_DrawPic ( (320-p->width)/2, 4, p);
@@ -2891,6 +3009,7 @@ void M_Search_Draw (void)
 
 void M_Search_Key (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 //=============================================================================
@@ -2901,6 +3020,7 @@ qboolean slist_sorted;
 
 void M_Menu_ServerList_f (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	key_dest = key_menu;
 	m_state = m_slist;
 	m_entersound = true;
@@ -2916,6 +3036,8 @@ void M_ServerList_Draw (void)
 	int		n;
 	char	string [64];
 	qpic_t	*p;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!slist_sorted)
 	{
@@ -2954,6 +3076,8 @@ void M_ServerList_Draw (void)
 
 void M_ServerList_Key (int k)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (k)
 	{
 	case K_ESCAPE:
@@ -3002,6 +3126,7 @@ void M_ServerList_Key (int k)
 
 void M_Init (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	Cmd_AddCommand ("togglemenu", M_ToggleMenu_f);
 
 	Cmd_AddCommand ("menu_main", M_Menu_Main_f);
@@ -3020,6 +3145,8 @@ void M_Init (void)
 
 void M_Draw (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (m_state == m_none || key_dest != key_menu)
 		return;
 
@@ -3136,6 +3263,8 @@ void M_Draw (void)
 
 void M_Keydown (int key)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	switch (m_state)
 	{
 	case m_none:
@@ -3218,6 +3347,8 @@ void M_Keydown (int key)
 
 void M_ConfigureNetSubsystem(void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // enable/disable net systems to match desired config
 
 	Cbuf_AddText ("stopdemo\n");

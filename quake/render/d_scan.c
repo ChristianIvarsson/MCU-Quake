@@ -49,9 +49,12 @@ void D_WarpScreen (void)
 	int		*turb;
 	int		*col;
 	byte	**row;
-	byte	*rowptr[MAXHEIGHT+(AMP2*2)];
-	int		column[MAXWIDTH+(AMP2*2)];
-	float	wratio, hratio;
+	
+	static __RAM_1 byte	*rowptr[MAXHEIGHT+(AMP2*2)];
+	static __RAM_1 int		column[MAXWIDTH+(AMP2*2)];
+	static __RAM_1 float	wratio, hratio;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	w = r_refdef.vrect.width;
 	h = r_refdef.vrect.height;
@@ -101,6 +104,8 @@ void D_DrawTurbulent8Span (void)
 {
 	int		sturb, tturb;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	do
 	{
 		sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
@@ -125,7 +130,9 @@ void Turbulent8 (espan_t *pspan)
 	fixed16_t		snext, tnext;
 	float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
 	float			sdivz16stepu, tdivz16stepu, zi16stepu;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_turb_turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
 
 	r_turb_sstep = 0;	// keep compiler happy
@@ -261,6 +268,8 @@ void D_DrawSpans8 (espan_t *pspan)
 	fixed16_t		s, t, snext, tnext, sstep, tstep;
 	float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
 	float			sdivz8stepu, tdivz8stepu, zi8stepu;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	sstep = 0;	// keep compiler happy
 	tstep = 0;	// ditto
@@ -400,6 +409,8 @@ void D_DrawZSpans (espan_t *pspan)
 	unsigned		ltemp;
 	double			zi;
 	float			du, dv;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // FIXME: check for clamping/range problems
 // we count on FP exceptions being turned off to avoid range problems

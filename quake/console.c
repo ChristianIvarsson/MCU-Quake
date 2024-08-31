@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <fcntl.h>
 #include "quakedef.h"
+#include "qfile.h"
 
 int 		con_linewidth;
 
@@ -71,6 +72,8 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (key_dest == key_console)
 	{
 		if (cls.state == ca_connected)
@@ -98,6 +101,8 @@ Con_Clear_f
 */
 void Con_Clear_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (con_text)
 		Q_memset (con_text, ' ', CON_TEXTSIZE);
 }
@@ -111,7 +116,9 @@ Con_ClearNotify
 void Con_ClearNotify (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<NUM_CON_TIMES ; i++)
 		con_times[i] = 0;
 }
@@ -126,6 +133,8 @@ extern qboolean team_message;
 
 void Con_MessageMode_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_message;
 	team_message = false;
 }
@@ -138,6 +147,8 @@ Con_MessageMode2_f
 */
 void Con_MessageMode2_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	key_dest = key_message;
 	team_message = true;
 }
@@ -153,7 +164,9 @@ If the line width has changed, reformat the buffer.
 void Con_CheckResize (void)
 {
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	char	tbuf[CON_TEXTSIZE];
+	static __RAM_1 char	tbuf[CON_TEXTSIZE];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	width = (vid.width >> 3) - 2;
 
@@ -212,8 +225,10 @@ Con_Init
 void Con_Init (void)
 {
 #define MAXGAMEDIRLEN	1000
-	char	temp[MAXGAMEDIRLEN+1];
+	static __RAM_1 char	temp[MAXGAMEDIRLEN+1];
 	char	*t2 = "/qconsole.log";
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	con_debuglog = COM_CheckParm("-condebug");
 
@@ -253,6 +268,8 @@ Con_Linefeed
 */
 void Con_Linefeed (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	con_x = 0;
 	con_current++;
 	Q_memset (&con_text[(con_current%con_totallines)*con_linewidth]
@@ -268,13 +285,15 @@ All console printing must go through this in order to be logged to disk
 If no console is visible, the notify window will pop up.
 ================
 */
-void Con_Print (char *txt)
+void Con_Print (const char *txt)
 {
 	int		y;
 	int		c, l;
 	static int	cr;
 	int		mask;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	con_backscroll = 0;
 
 	if (txt[0] == 1)
@@ -353,15 +372,17 @@ Con_DebugLog
 void Con_DebugLog(char *file, char *fmt, ...)
 {
     va_list argptr; 
-    static char data[1024];
+    static __RAM_1 char data[1024];
     int fd;
-    
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
     va_start(argptr, fmt);
     vsprintf(data, fmt, argptr);
     va_end(argptr);
-    fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0666);
-    write(fd, data, strlen(data));
-    close(fd);
+    fd = Qopen(file, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    Qwrite(fd, data, strlen(data));
+    Qclose(fd);
 }
 
 
@@ -374,18 +395,22 @@ Handles cursor positioning, line wrapping, etc
 */
 #define	MAXPRINTMSG	4096
 // FIXME: make a buffer size safe vsprintf?
-void Con_Printf (char *fmt, ...)
+void Con_Printf (const char *fmt, ...)
 {
 	va_list		argptr;
-	char		msg[MAXPRINTMSG];
+	static __RAM_1 char msg[MAXPRINTMSG];
 	static qboolean	inupdate;
-	
+
+	// DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,fmt);
 	vsprintf (msg,fmt,argptr);
 	va_end (argptr);
 	
 // also echo to debugging console
 	Sys_Printf ("%s", msg);	// also echo to debugging console
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // log all messages to file
 	if (con_debuglog)
@@ -421,11 +446,13 @@ Con_DPrintf
 A Con_Printf that only shows up if the "developer" cvar is set
 ================
 */
-void Con_DPrintf (char *fmt, ...)
+void Con_DPrintf (const char *fmt, ...)
 {
 	va_list		argptr;
-	char		msg[MAXPRINTMSG];
-		
+	static __RAM_1 char msg[MAXPRINTMSG];
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!developer.value)
 		return;			// don't confuse non-developers with techie stuff...
 
@@ -444,12 +471,14 @@ Con_SafePrintf
 Okay to call even when the screen can't be updated
 ==================
 */
-void Con_SafePrintf (char *fmt, ...)
+void Con_SafePrintf (const char *fmt, ...)
 {
 	va_list		argptr;
-	char		msg[1024];
+	static __RAM_1 char		msg[1024];
 	int			temp;
-		
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,fmt);
 	vsprintf (msg,fmt,argptr);
 	va_end (argptr);
@@ -479,9 +508,11 @@ The input line scrolls horizontally if typing goes beyond the right edge
 */
 void Con_DrawInput (void)
 {
-	int		y;
+	// int		y;
 	int		i;
 	char	*text;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (key_dest != key_console && !con_forcedup)
 		return;		// don't draw anything
@@ -500,7 +531,7 @@ void Con_DrawInput (void)
 		text += 1 + key_linepos - con_linewidth;
 		
 // draw it
-	y = con_vislines-16;
+	// y = con_vislines-16;
 
 	for (i=0 ; i<con_linewidth ; i++)
 		Draw_Character ( (i+1)<<3, con_vislines - 16, text[i]);
@@ -524,6 +555,8 @@ void Con_DrawNotify (void)
 	int		i;
 	float	time;
 	extern char chat_buffer[];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	v = 0;
 	for (i= con_current-NUM_CON_TIMES+1 ; i<=con_current ; i++)
@@ -583,7 +616,9 @@ void Con_DrawConsole (int lines, qboolean drawinput)
 	int				rows;
 	char			*text;
 	int				j;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (lines <= 0)
 		return;
 
@@ -618,9 +653,11 @@ void Con_DrawConsole (int lines, qboolean drawinput)
 Con_NotifyBox
 ==================
 */
-void Con_NotifyBox (char *text)
+void Con_NotifyBox (const char *text)
 {
 	double		t1, t2;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // during startup for sound / cd warnings
 	Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n");

@@ -36,6 +36,9 @@ SV_Init
 void SV_Init (void)
 {
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	extern	cvar_t	sv_maxvelocity;
 	extern	cvar_t	sv_gravity;
 	extern	cvar_t	sv_nostep;
@@ -81,6 +84,8 @@ void SV_StartParticle (vec3_t org, vec3_t dir, int color, int count)
 {
 	int		i, v;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (sv.datagram.cursize > MAX_DATAGRAM-16)
 		return;	
 	MSG_WriteByte (&sv.datagram, svc_particle);
@@ -122,7 +127,9 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
     int field_mask;
     int			i;
 	int			ent;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (volume < 0 || volume > 255)
 		Sys_Error ("SV_StartSound: volume = %i", volume);
 
@@ -191,6 +198,8 @@ void SV_SendServerinfo (client_t *client)
 	char			**s;
 	char			message[2048];
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	MSG_WriteByte (&client->message, svc_print);
 	sprintf (message, "%c\nVERSION %4.2f SERVER (%i CRC)", 2, VERSION, pr_crc);
 	MSG_WriteString (&client->message,message);
@@ -249,6 +258,8 @@ void SV_ConnectClient (int clientnum)
 	int				i;
 	float			spawn_parms[NUM_SPAWN_PARMS];
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	client = svs.clients + clientnum;
 
 	Con_DPrintf ("Client %s connected\n", client->netconnection->address);
@@ -303,7 +314,9 @@ void SV_CheckForNewClients (void)
 {
 	struct qsocket_s	*ret;
 	int				i;
-		
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 //
 // check for new connections
 //
@@ -347,6 +360,7 @@ SV_ClearDatagram
 */
 void SV_ClearDatagram (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	SZ_Clear (&sv.datagram);
 }
 
@@ -367,9 +381,11 @@ byte	fatpvs[MAX_MAP_LEAFS/8];
 void SV_AddToFatPVS (vec3_t org, mnode_t *node)
 {
 	int		i;
-	byte	*pvs;
+	const byte	*pvs;
 	mplane_t	*plane;
 	float	d;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	while (1)
 	{
@@ -409,6 +425,7 @@ given point.
 */
 byte *SV_FatPVS (vec3_t org)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	fatbytes = (sv.worldmodel->numleafs+31)>>3;
 	Q_memset (fatpvs, 0, fatbytes);
 	SV_AddToFatPVS (org, sv.worldmodel->nodes);
@@ -432,6 +449,8 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 	vec3_t	org;
 	float	miss;
 	edict_t	*ent;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // find the client's PVS
 	VectorAdd (clent->v.origin, clent->v.view_ofs, org);
@@ -558,7 +577,9 @@ void SV_CleanupEnts (void)
 {
 	int		e;
 	edict_t	*ent;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = NEXT_EDICT(sv.edicts);
 	for (e=1 ; e<sv.num_edicts ; e++, ent = NEXT_EDICT(ent))
 	{
@@ -583,6 +604,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 	eval_t	*val;
 #endif
 
+	DO_STACK_TRACE( __FUNCTION__ )
 //
 // send a damage message
 //
@@ -721,7 +743,9 @@ qboolean SV_SendClientDatagram (client_t *client)
 {
 	byte		buf[MAX_DATAGRAM];
 	sizebuf_t	msg;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	msg.data = buf;
 	msg.maxsize = sizeof(buf);
 	msg.cursize = 0;
@@ -757,6 +781,8 @@ void SV_UpdateToReliableMessages (void)
 {
 	int			i, j;
 	client_t *client;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // check for changes to be sent over the reliable streams
 	for (i=0, host_client = svs.clients ; i<svs.maxclients ; i++, host_client++)
@@ -799,7 +825,9 @@ void SV_SendNop (client_t *client)
 {
 	sizebuf_t	msg;
 	byte		buf[4];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	msg.data = buf;
 	msg.maxsize = sizeof(buf);
 	msg.cursize = 0;
@@ -819,7 +847,9 @@ SV_SendClientMessages
 void SV_SendClientMessages (void)
 {
 	int			i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // update frags, names, etc
 	SV_UpdateToReliableMessages ();
 
@@ -904,7 +934,9 @@ SV_ModelIndex
 int SV_ModelIndex (char *name)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!name || !name[0])
 		return 0;
 
@@ -927,7 +959,9 @@ void SV_CreateBaseline (void)
 	int			i;
 	edict_t			*svent;
 	int				entnum;	
-		
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (entnum = 0; entnum < sv.num_edicts ; entnum++)
 	{
 	// get the current server version
@@ -987,7 +1021,9 @@ void SV_SendReconnect (void)
 	char	data[128];
 	sizebuf_t	msg;
 
-	msg.data = data;
+	DO_STACK_TRACE( __FUNCTION__ )
+
+	msg.data = (unsigned char*)data;
 	msg.cursize = 0;
 	msg.maxsize = sizeof(data);
 
@@ -1015,6 +1051,8 @@ transition to another level
 void SV_SaveSpawnparms (void)
 {
 	int		i, j;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	svs.serverflags = pr_global_struct->serverflags;
 
@@ -1049,6 +1087,8 @@ void SV_SpawnServer (char *server)
 {
 	edict_t		*ent;
 	int			i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	// let's not have any servers with no name
 	if (hostname.string[0] == 0)

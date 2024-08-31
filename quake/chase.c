@@ -37,6 +37,7 @@ extern qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p
 
 void Chase_Init (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	Cvar_RegisterVariable (&chase_back);
 	Cvar_RegisterVariable (&chase_up);
 	Cvar_RegisterVariable (&chase_right);
@@ -45,6 +46,7 @@ void Chase_Init (void)
 
 void Chase_Reset (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	// for respawning and teleporting
 //	start position 12 units behind head
 }
@@ -52,6 +54,8 @@ void Chase_Reset (void)
 void TraceLine (vec3_t start, vec3_t end, vec3_t impact)
 {
 	trace_t	trace;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	memset (&trace, 0, sizeof(trace));
 	SV_RecursiveHullCheck (cl.worldmodel->hulls, 0, 0, 1, start, end, &trace);
@@ -66,6 +70,7 @@ void Chase_Update (void)
 	vec3_t	forward, up, right;
 	vec3_t	dest, stop;
 
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	// if can't see player, reset
 	AngleVectors (cl.viewangles, forward, right, up);

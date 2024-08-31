@@ -60,6 +60,8 @@ void KeyDown (kbutton_t *b)
 	int		k;
 	char	*c;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	c = Cmd_Argv(1);
 	if (c[0])
 		k = atoi(c);
@@ -88,7 +90,9 @@ void KeyUp (kbutton_t *b)
 {
 	int		k;
 	char	*c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	c = Cmd_Argv(1);
 	if (c[0])
 		k = atoi(c);
@@ -172,33 +176,42 @@ float CL_KeyState (kbutton_t *key)
 {
 	float		val;
 	qboolean	impulsedown, impulseup, down;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	impulsedown = key->state & 2;
 	impulseup = key->state & 4;
 	down = key->state & 1;
 	val = 0;
 	
 	if (impulsedown && !impulseup)
+	{
 		if (down)
 			val = 0.5;	// pressed and held this frame
 		else
 			val = 0;	//	I_Error ();
+	}
 	if (impulseup && !impulsedown)
+	{
 		if (down)
 			val = 0;	//	I_Error ();
 		else
 			val = 0;	// released this frame
+	}
 	if (!impulsedown && !impulseup)
+	{
 		if (down)
 			val = 1.0;	// held the entire frame
 		else
 			val = 0;	// up the entire frame
+	}
 	if (impulsedown && impulseup)
+	{
 		if (down)
 			val = 0.75;	// released and re-pressed this frame
 		else
 			val = 0.25;	// pressed and released this frame
-
+	}
 	key->state &= 1;		// clear impulses
 	
 	return val;
@@ -233,7 +246,9 @@ void CL_AdjustAngles (void)
 {
 	float	speed;
 	float	up, down;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (in_speed.state & 1)
 		speed = host_frametime * cl_anglespeedkey.value;
 	else
@@ -281,7 +296,9 @@ Send the intended movement message to the server
 ================
 */
 void CL_BaseMove (usercmd_t *cmd)
-{	
+{
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.signon != SIGNONS)
 		return;
 			
@@ -335,7 +352,9 @@ void CL_SendMove (usercmd_t *cmd)
 	int		bits;
 	sizebuf_t	buf;
 	byte	data[128];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	buf.maxsize = 128;
 	buf.cursize = 0;
 	buf.data = data;
@@ -408,6 +427,8 @@ CL_InitInput
 */
 void CL_InitInput (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Cmd_AddCommand ("+moveup",IN_UpDown);
 	Cmd_AddCommand ("-moveup",IN_UpUp);
 	Cmd_AddCommand ("+movedown",IN_DownDown);
@@ -443,6 +464,5 @@ void CL_InitInput (void)
 	Cmd_AddCommand ("-klook", IN_KLookUp);
 	Cmd_AddCommand ("+mlook", IN_MLookDown);
 	Cmd_AddCommand ("-mlook", IN_MLookUp);
-
 }
 

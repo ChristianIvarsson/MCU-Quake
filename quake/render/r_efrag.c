@@ -52,7 +52,9 @@ Call when removing an object from the world or moving it to another position
 void R_RemoveEfrags (entity_t *ent)
 {
 	efrag_t		*ef, *old, *walk, **prev;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	ef = ent->efrag;
 	
 	while (ef)
@@ -94,7 +96,9 @@ void R_SplitEntityOnNode (mnode_t *node)
 	mplane_t	*splitplane;
 	mleaf_t		*leaf;
 	int			sides;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (node->contents == CONTENTS_SOLID)
 	{
 		return;
@@ -165,6 +169,8 @@ void R_SplitEntityOnNode2 (mnode_t *node)
 	mplane_t	*splitplane;
 	int			sides;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (node->visframe != r_visframecount)
 		return;
 	
@@ -203,7 +209,9 @@ void R_AddEfrags (entity_t *ent)
 {
 	model_t		*entmodel;
 	int			i;
-		
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!ent->model)
 		return;
 
@@ -242,6 +250,7 @@ void R_StoreEfrags (efrag_t **ppefrag)
 	model_t		*clmodel;
 	efrag_t		*pefrag;
 
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	while ((pefrag = *ppefrag) != NULL)
 	{

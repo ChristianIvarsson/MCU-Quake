@@ -38,6 +38,8 @@ static struct
 
 int VCR_Init (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	net_drivers[0].Init = VCR_Init;
 
 	net_drivers[0].SearchForHosts = VCR_SearchForHosts;
@@ -55,6 +57,8 @@ int VCR_Init (void)
 
 void VCR_ReadNext (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Sys_FileRead(vcrFile, &next, sizeof(next)) == 0)
 	{
 		next.op = 255;
@@ -67,18 +71,22 @@ void VCR_ReadNext (void)
 
 void VCR_Listen (qboolean state)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 
 void VCR_Shutdown (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 
 int VCR_GetMessage (qsocket_t *sock)
 {
 	int	ret;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (host_time != next.time || next.op != VCR_OP_GETMESSAGE || next.session != *(long *)(&sock->driverdata))
 		Sys_Error ("VCR missmatch");
 
@@ -102,6 +110,8 @@ int VCR_SendMessage (qsocket_t *sock, sizebuf_t *data)
 {
 	int	ret;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (host_time != next.time || next.op != VCR_OP_SENDMESSAGE || next.session != *(long *)(&sock->driverdata))
 		Sys_Error ("VCR missmatch");
 
@@ -117,6 +127,8 @@ qboolean VCR_CanSendMessage (qsocket_t *sock)
 {
 	qboolean	ret;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (host_time != next.time || next.op != VCR_OP_CANSENDMESSAGE || next.session != *(long *)(&sock->driverdata))
 		Sys_Error ("VCR missmatch");
 
@@ -130,16 +142,19 @@ qboolean VCR_CanSendMessage (qsocket_t *sock)
 
 void VCR_Close (qsocket_t *sock)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 
 void VCR_SearchForHosts (qboolean xmit)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 
 qsocket_t *VCR_Connect (char *host)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	return NULL;
 }
 
@@ -147,6 +162,8 @@ qsocket_t *VCR_Connect (char *host)
 qsocket_t *VCR_CheckNewConnections (void)
 {
 	qsocket_t	*sock;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (host_time != next.time || next.op != VCR_OP_CONNECT)
 		Sys_Error ("VCR missmatch");

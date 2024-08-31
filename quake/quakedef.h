@@ -23,6 +23,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../regions.h"
 
+// Trace stack
+// #define TRACE_STACK
+
+#ifdef TRACE_STACK
+#define __FUNCTION__ __func__
+#define TRACE_MAX_TOT_STACK_DEPTH   ( (8 * 1024)  )
+#define TRACE_MAX_FUNC_STACK_DEPTH  ( (8 * 1024)  )
+#define DO_STACK_TRACE(name) { int i; COM_CaptureStack((void*)&i, (name)); }
+#else
+#define DO_STACK_TRACE(name)
+#endif
+
 #define	QUAKE_GAME			// as opposed to utilities
 
 #define	VERSION				1.09
@@ -275,7 +287,7 @@ typedef struct
 	char	*basedir;
 	char	*cachedir;		// for development over ISDN lines
 	int		argc;
-	char	**argv;
+	const char	**argv;
 	void	*membase;
 	int		memsize;
 } quakeparms_t;
@@ -314,7 +326,7 @@ void Host_Error (char *error, ...);
 void Host_EndGame (char *message, ...);
 void Host_Frame (float time);
 void Host_Quit_f (void);
-void Host_ClientCommands (char *fmt, ...);
+void Host_ClientCommands (const char *fmt, ...);
 void Host_ShutdownServer (qboolean crash);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output

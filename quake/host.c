@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // host.c -- coordinates spawning and killing of local servers
 
 #include "quakedef.h"
+#include "qfile.h"
 #include "render/r_local.h"
 
 /*
@@ -91,7 +92,9 @@ void Host_EndGame (char *message, ...)
 {
 	va_list		argptr;
 	char		string[1024];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,message);
 	vsprintf (string,message,argptr);
 	va_end (argptr);
@@ -123,7 +126,9 @@ void Host_Error (char *error, ...)
 	va_list		argptr;
 	char		string[1024];
 	static	qboolean inerror = false;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (inerror)
 		Sys_Error ("Host_Error: recursively entered");
 	inerror = true;
@@ -157,6 +162,8 @@ Host_FindMaxClients
 void	Host_FindMaxClients (void)
 {
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	svs.maxclients = 1;
 		
@@ -208,6 +215,8 @@ Host_InitLocal
 */
 void Host_InitLocal (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Host_InitCommands ();
 	
 	Cvar_RegisterVariable (&host_framerate);
@@ -245,13 +254,15 @@ Writes key bindings and archived cvars to config.cfg
 */
 void Host_WriteConfiguration (void)
 {
-	FILE	*f;
+	QFILE	*f;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // dedicated servers initialize the host but don't parse and set the
 // config.cfg cvars
 	if (host_initialized & !isDedicated)
 	{
-		f = fopen (va("%s/config.cfg",com_gamedir), "w");
+		f = Qfopen (va("%s/config.cfg",com_gamedir), "w");
 		if (!f)
 		{
 			Con_Printf ("Couldn't write config.cfg.\n");
@@ -261,7 +272,7 @@ void Host_WriteConfiguration (void)
 		Key_WriteBindings (f);
 		Cvar_WriteVariables (f);
 
-		fclose (f);
+		Qfclose (f);
 	}
 }
 
@@ -274,11 +285,13 @@ Sends text across to be displayed
 FIXME: make this just a stuffed echo?
 =================
 */
-void SV_ClientPrintf (char *fmt, ...)
+void SV_ClientPrintf (const char *fmt, ...)
 {
 	va_list		argptr;
 	char		string[1024];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,fmt);
 	vsprintf (string, fmt,argptr);
 	va_end (argptr);
@@ -294,12 +307,14 @@ SV_BroadcastPrintf
 Sends text to all active clients
 =================
 */
-void SV_BroadcastPrintf (char *fmt, ...)
+void SV_BroadcastPrintf (const char *fmt, ...)
 {
 	va_list		argptr;
 	char		string[1024];
 	int			i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,fmt);
 	vsprintf (string, fmt,argptr);
 	va_end (argptr);
@@ -319,11 +334,13 @@ Host_ClientCommands
 Send text over to the client to be executed
 =================
 */
-void Host_ClientCommands (char *fmt, ...)
+void Host_ClientCommands (const char *fmt, ...)
 {
 	va_list		argptr;
 	char		string[1024];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	va_start (argptr,fmt);
 	vsprintf (string, fmt,argptr);
 	va_end (argptr);
@@ -345,6 +362,8 @@ void SV_DropClient (qboolean crash)
 	int		saveSelf;
 	int		i;
 	client_t *client;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!crash)
 	{
@@ -410,6 +429,8 @@ void Host_ShutdownServer(qboolean crash)
 	char		message[4];
 	double	start;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!sv.active)
 		return;
 
@@ -446,7 +467,7 @@ void Host_ShutdownServer(qboolean crash)
 	while (count);
 
 // make sure all the clients know we're disconnecting
-	buf.data = message;
+	buf.data = (unsigned char*)message;
 	buf.maxsize = 4;
 	buf.cursize = 0;
 	MSG_WriteByte(&buf, svc_disconnect);
@@ -476,6 +497,8 @@ not reinitialize anything.
 */
 void Host_ClearMemory (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_DPrintf ("Clearing memory\n");
 	D_FlushCaches ();
 	Mod_ClearAll ();
@@ -500,6 +523,8 @@ Returns false if the time is too short to run a frame
 */
 qboolean Host_FilterTime (float time)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	realtime += time;
 
 	if (!cls.timedemo && realtime - oldrealtime < 1.0/72.0)
@@ -531,7 +556,9 @@ Add them exactly as if they had been typed at the console
 */
 void Host_GetConsoleCommands (void)
 {
-	char	*cmd;
+	char *cmd;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	while (1)
 	{
@@ -553,6 +580,8 @@ Host_ServerFrame
 
 void _Host_ServerFrame (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // run the world state	
 	pr_global_struct->frametime = host_frametime;
 
@@ -567,6 +596,8 @@ void _Host_ServerFrame (void)
 
 void Host_ServerFrame (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	float	save_host_frametime;
 	float	temp_host_frametime;
 
@@ -599,6 +630,8 @@ void Host_ServerFrame (void)
 
 void Host_ServerFrame (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // run the world state	
 	pr_global_struct->frametime = host_frametime;
 
@@ -636,6 +669,8 @@ void _Host_Frame (float time)
 	static double		time2 = 0;
 	static double		time3 = 0;
 	int			pass1, pass2, pass3;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (setjmp (host_abortserver) )
 		return;			// something bad happened, or the server disconnected
@@ -733,6 +768,8 @@ void Host_Frame (float time)
 	static int		timecount;
 	int		i, c, m;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!serverprofile.value)
 	{
 		_Host_Frame (time);
@@ -773,7 +810,9 @@ void Host_InitVCR (quakeparms_t *parms)
 {
 	int		i, len, n;
 	char	*p;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (COM_CheckParm("-playback"))
 	{
 		if (com_argc != 2)
@@ -834,6 +873,7 @@ Host_Init
 */
 void Host_Init (quakeparms_t *parms)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (standard_quake)
 		minimum_memory = MINIMUM_MEMORY;
@@ -932,7 +972,9 @@ to run quit through here before the final handoff to the sys code.
 void Host_Shutdown(void)
 {
 	static qboolean isdown = false;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (isdown)
 	{
 		printf ("recursive shutdown\n");

@@ -74,7 +74,9 @@ Z_ClearZone
 void Z_ClearZone (memzone_t *zone, int size)
 {
 	memblock_t	*block;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // set the entire zone to one free block
 
 	zone->blocklist.next = zone->blocklist.prev = block =
@@ -99,7 +101,9 @@ Z_Free
 void Z_Free (void *ptr)
 {
 	memblock_t	*block, *other;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!ptr)
 		Sys_Error ("Z_Free: NULL pointer");
 
@@ -142,7 +146,9 @@ Z_Malloc
 void *Z_Malloc (int size)
 {
 	void	*buf;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 Z_CheckHeap ();	// DEBUG
 	buf = Z_TagMalloc (size, 1);
 	if (!buf)
@@ -156,6 +162,8 @@ void *Z_TagMalloc (int size, int tag)
 {
 	int		extra;
 	memblock_t	*start, *rover, *new, *base;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!tag)
 		Sys_Error ("Z_TagMalloc: tried to use a 0 tag");
@@ -219,7 +227,9 @@ Z_Print
 void Z_Print (memzone_t *zone)
 {
 	memblock_t	*block;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_Printf ("zone size: %i  location: %p\n",mainzone->size,mainzone);
 	
 	for (block = zone->blocklist.next ; ; block = block->next)
@@ -247,7 +257,9 @@ Z_CheckHeap
 void Z_CheckHeap (void)
 {
 	memblock_t	*block;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (block = mainzone->blocklist.next ; ; block = block->next)
 	{
 		if (block->next == &mainzone->blocklist)
@@ -293,7 +305,9 @@ Run consistancy and sentinal trahing checks
 void Hunk_Check (void)
 {
 	hunk_t	*h;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (h = (hunk_t *)hunk_base ; (byte *)h != hunk_base + hunk_low_used ; )
 	{
 		if (h->sentinal != HUNK_SENTINAL)
@@ -318,6 +332,8 @@ void Hunk_Print (qboolean all)
 	int		count, sum;
 	int		totalblocks;
 	char	name[9];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	name[8] = 0;
 	count = 0;
@@ -396,10 +412,12 @@ void Hunk_Print (qboolean all)
 Hunk_AllocName
 ===================
 */
-void *Hunk_AllocName (int size, char *name)
+void *Hunk_AllocName (int size, const char *name)
 {
 	hunk_t	*h;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 #ifdef PARANOID
 	Hunk_Check ();
 #endif
@@ -408,10 +426,12 @@ void *Hunk_AllocName (int size, char *name)
 		Sys_Error ("Hunk_Alloc: bad size: %i", size);
 		
 	size = sizeof(hunk_t) + ((size+15)&~15);
-	
+
+    Con_Printf("Hunk_AllocName: %s %.2f k\n", name, size / 1024.0);
+
 	if (hunk_size - hunk_low_used - hunk_high_used < size)
 		Sys_Error ("Hunk_Alloc: failed on %i bytes",size);
-	
+
 	h = (hunk_t *)(hunk_base + hunk_low_used);
 	hunk_low_used += size;
 
@@ -433,16 +453,20 @@ Hunk_Alloc
 */
 void *Hunk_Alloc (int size)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return Hunk_AllocName (size, "unknown");
 }
 
 int	Hunk_LowMark (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return hunk_low_used;
 }
 
 void Hunk_FreeToLowMark (int mark)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (mark < 0 || mark > hunk_low_used)
 		Sys_Error ("Hunk_FreeToLowMark: bad mark %i", mark);
 	memset (hunk_base + mark, 0, hunk_low_used - mark);
@@ -451,6 +475,8 @@ void Hunk_FreeToLowMark (int mark)
 
 int	Hunk_HighMark (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (hunk_tempactive)
 	{
 		hunk_tempactive = false;
@@ -462,6 +488,8 @@ int	Hunk_HighMark (void)
 
 void Hunk_FreeToHighMark (int mark)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (hunk_tempactive)
 	{
 		hunk_tempactive = false;
@@ -479,9 +507,11 @@ void Hunk_FreeToHighMark (int mark)
 Hunk_HighAllocName
 ===================
 */
-void *Hunk_HighAllocName (int size, char *name)
+void *Hunk_HighAllocName (int size, const char *name)
 {
 	hunk_t	*h;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (size < 0)
 		Sys_Error ("Hunk_HighAllocName: bad size: %i", size);
@@ -528,6 +558,8 @@ Return space from the top of the hunk
 void *Hunk_TempAlloc (int size)
 {
 	void	*buf;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	size = (size+15)&~15;
 	
@@ -576,6 +608,8 @@ void Cache_Move ( cache_system_t *c)
 {
 	cache_system_t		*new;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // we are clearing up space at the bottom, so only allocate it late
 	new = Cache_TryAlloc (c->size, true);
 	if (new)
@@ -606,7 +640,9 @@ Throw things out until the hunk can be expanded to the given point
 void Cache_FreeLow (int new_low_hunk)
 {
 	cache_system_t	*c;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (1)
 	{
 		c = cache_head.next;
@@ -628,7 +664,9 @@ Throw things out until the hunk can be expanded to the given point
 void Cache_FreeHigh (int new_high_hunk)
 {
 	cache_system_t	*c, *prev;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	prev = NULL;
 	while (1)
 	{
@@ -649,6 +687,8 @@ void Cache_FreeHigh (int new_high_hunk)
 
 void Cache_UnlinkLRU (cache_system_t *cs)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!cs->lru_next || !cs->lru_prev)
 		Sys_Error ("Cache_UnlinkLRU: NULL link");
 
@@ -660,6 +700,8 @@ void Cache_UnlinkLRU (cache_system_t *cs)
 
 void Cache_MakeLRU (cache_system_t *cs)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cs->lru_next || cs->lru_prev)
 		Sys_Error ("Cache_MakeLRU: active link");
 
@@ -680,7 +722,9 @@ Size should already include the header and padding
 cache_system_t *Cache_TryAlloc (int size, qboolean nobottom)
 {
 	cache_system_t	*cs, *new;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // is the cache completely empty?
 
 	if (!nobottom && cache_head.prev == &cache_head)
@@ -758,6 +802,8 @@ Throw everything out, so new data will be demand cached
 */
 void Cache_Flush (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (cache_head.next != &cache_head)
 		Cache_Free ( cache_head.next->user );	// reclaim the space
 }
@@ -773,6 +819,8 @@ void Cache_Print (void)
 {
 	cache_system_t	*cd;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (cd = cache_head.next ; cd != &cache_head ; cd = cd->next)
 	{
 		Con_Printf ("%8i : %s\n", cd->size, cd->name);
@@ -787,6 +835,8 @@ Cache_Report
 */
 void Cache_Report (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_DPrintf ("%4.1f megabyte data cache\n", (hunk_size - hunk_high_used - hunk_low_used) / (float)(1024*1024) );
 }
 
@@ -798,6 +848,7 @@ Cache_Compact
 */
 void Cache_Compact (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 }
 
 /*
@@ -808,6 +859,8 @@ Cache_Init
 */
 void Cache_Init (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	cache_head.next = cache_head.prev = &cache_head;
 	cache_head.lru_next = cache_head.lru_prev = &cache_head;
 
@@ -824,6 +877,8 @@ Frees the memory and removes it from the LRU list
 void Cache_Free (cache_user_t *c)
 {
 	cache_system_t	*cs;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!c->data)
 		Sys_Error ("Cache_Free: not allocated");
@@ -850,6 +905,8 @@ void *Cache_Check (cache_user_t *c)
 {
 	cache_system_t	*cs;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!c->data)
 		return NULL;
 
@@ -871,6 +928,8 @@ Cache_Alloc
 void *Cache_Alloc (cache_user_t *c, int size, char *name)
 {
 	cache_system_t	*cs;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (c->data)
 		Sys_Error ("Cache_Alloc: allready allocated");
@@ -914,6 +973,8 @@ void Memory_Init (void *buf, int size)
 {
 	int p;
 	int zonesize = DYNAMIC_SIZE;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	hunk_base = buf;
 	hunk_size = size;

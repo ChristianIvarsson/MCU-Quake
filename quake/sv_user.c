@@ -59,6 +59,8 @@ void SV_SetIdealPitch (void)
 	int		i, j;
 	int		step, dir, steps;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!((int)sv_player->v.flags & FL_ONGROUND))
 		return;
 		
@@ -126,7 +128,9 @@ void SV_UserFriction (void)
 	vec3_t	start, stop;
 	float	friction;
 	trace_t	trace;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	vel = velocity;
 	
 	speed = sqrt(vel[0]*vel[0] +vel[1]*vel[1]);
@@ -173,6 +177,8 @@ void SV_Accelerate (vec3_t wishvel)
 	float		addspeed, accelspeed;
 	vec3_t		pushvec;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (wishspeed == 0)
 		return;
 
@@ -192,6 +198,8 @@ void SV_Accelerate (void)
 	int			i;
 	float		addspeed, accelspeed, currentspeed;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	currentspeed = DotProduct (velocity, wishdir);
 	addspeed = wishspeed - currentspeed;
 	if (addspeed <= 0)
@@ -208,7 +216,9 @@ void SV_AirAccelerate (vec3_t wishveloc)
 {
 	int			i;
 	float		addspeed, wishspd, accelspeed, currentspeed;
-		
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	wishspd = VectorNormalize (wishveloc);
 	if (wishspd > 30)
 		wishspd = 30;
@@ -229,7 +239,9 @@ void SV_AirAccelerate (vec3_t wishveloc)
 void DropPunchAngle (void)
 {
 	float	len;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	len = VectorNormalize (sv_player->v.punchangle);
 	
 	len -= 10*host_frametime;
@@ -250,6 +262,7 @@ void SV_WaterMove (void)
 	vec3_t	wishvel;
 	float	speed, newspeed, wishspeed, addspeed, accelspeed;
 
+    DO_STACK_TRACE( __FUNCTION__ )
 //
 // user intentions
 //
@@ -306,6 +319,8 @@ void SV_WaterMove (void)
 
 void SV_WaterJump (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (sv.time > sv_player->v.teleport_time
 	|| !sv_player->v.waterlevel)
 	{
@@ -328,6 +343,8 @@ void SV_AirMove (void)
 	int			i;
 	vec3_t		wishvel;
 	float		fmove, smove;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	AngleVectors (sv_player->v.angles, forward, right, up);
 
@@ -380,6 +397,8 @@ the angle fields specify an exact angular motion in degrees
 void SV_ClientThink (void)
 {
 	vec3_t		v_angle;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (sv_player->v.movetype == MOVETYPE_NONE)
 		return;
@@ -440,7 +459,9 @@ void SV_ReadClientMove (usercmd_t *move)
 	int		i;
 	vec3_t	angle;
 	int		bits;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // read ping time
 	host_client->ping_times[host_client->num_pings%NUM_PING_TIMES]
 		= sv.time - MSG_ReadFloat ();
@@ -484,7 +505,9 @@ qboolean SV_ReadClientMessage (void)
 	int		ret;
 	int		cmd;
 	char		*s;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	do
 	{
 nextmsg:
@@ -600,7 +623,9 @@ SV_RunClients
 void SV_RunClients (void)
 {
 	int				i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0, host_client = svs.clients ; i<svs.maxclients ; i++, host_client++)
 	{
 		if (!host_client->active)

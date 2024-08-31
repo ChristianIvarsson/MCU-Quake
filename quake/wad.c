@@ -42,7 +42,9 @@ void W_CleanupName (char *in, char *out)
 {
 	int		i;
 	int		c;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<16 ; i++ )
 	{
 		c = in[i];
@@ -71,7 +73,9 @@ void W_LoadWadFile (char *filename)
 	wadinfo_t		*header;
 	unsigned		i;
 	int				infotableofs;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	wad_base = COM_LoadHunkFile (filename);
 	if (!wad_base)
 		Sys_Error ("W_LoadWadFile: couldn't load %s", filename);
@@ -109,7 +113,9 @@ lumpinfo_t	*W_GetLumpinfo (char *name)
 	int		i;
 	lumpinfo_t	*lump_p;
 	char	clean[16];
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	W_CleanupName (name, clean);
 	
 	for (lump_p=wad_lumps, i=0 ; i<wad_numlumps ; i++,lump_p++)
@@ -125,7 +131,9 @@ lumpinfo_t	*W_GetLumpinfo (char *name)
 void *W_GetLumpName (char *name)
 {
 	lumpinfo_t	*lump;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	lump = W_GetLumpinfo (name);
 	
 	return (void *)(wad_base + lump->filepos);
@@ -134,7 +142,9 @@ void *W_GetLumpName (char *name)
 void *W_GetLumpNum (int num)
 {
 	lumpinfo_t	*lump;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (num < 0 || num > wad_numlumps)
 		Sys_Error ("W_GetLumpNum: bad number: %i", num);
 		
@@ -153,6 +163,7 @@ automatic byte swapping
 
 void SwapPic (qpic_t *pic)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	pic->width = LittleLong(pic->width);
 	pic->height = LittleLong(pic->height);	
 }

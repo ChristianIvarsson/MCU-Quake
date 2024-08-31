@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CRC_INIT_VALUE	0xffff
 #define CRC_XOR_VALUE	0x0000
 
-static unsigned short crctable[256] =
+static const unsigned short crctable[256] =
 {
 	0x0000,	0x1021,	0x2042,	0x3063,	0x4084,	0x50a5,	0x60c6,	0x70e7,
 	0x8108,	0x9129,	0xa14a,	0xb16b,	0xc18c,	0xd1ad,	0xe1ce,	0xf1ef,
@@ -67,15 +67,18 @@ static unsigned short crctable[256] =
 
 void CRC_Init(unsigned short *crcvalue)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	*crcvalue = CRC_INIT_VALUE;
 }
 
 void CRC_ProcessByte(unsigned short *crcvalue, byte data)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	*crcvalue = (*crcvalue << 8) ^ crctable[(*crcvalue >> 8) ^ data];
 }
 
 unsigned short CRC_Value(unsigned short crcvalue)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return crcvalue ^ CRC_XOR_VALUE;
 }

@@ -124,9 +124,11 @@ D_PolysetDraw
 */
 void D_PolysetDraw (void)
 {
-	spanpackage_t	spans[DPS_MAXSPANS + 1 +
+	static __RAM_1 spanpackage_t	spans[DPS_MAXSPANS + 1 +
 			((CACHE_SIZE - 1) / sizeof(spanpackage_t)) + 1];
 						// one extra because of cache line pretouching
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	a_spans = (spanpackage_t *)
 			(((long)&spans[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
@@ -151,6 +153,8 @@ void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts)
 {
 	int		i, z;
 	short	*zbuf;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<numverts ; i++, fv++)
 	{
@@ -186,6 +190,8 @@ void D_DrawSubdiv (void)
 	finalvert_t		*pfv, *index0, *index1, *index2;
 	int				i;
 	int				lnumtriangles;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pfv = r_affinetridesc.pfinalverts;
 	ptri = r_affinetridesc.ptriangles;
@@ -247,6 +253,8 @@ void D_DrawNonSubdiv (void)
 	finalvert_t		*pfv, *index0, *index1, *index2;
 	int				i;
 	int				lnumtriangles;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pfv = r_affinetridesc.pfinalverts;
 	ptri = r_affinetridesc.ptriangles;
@@ -316,6 +324,8 @@ void D_PolysetRecursiveTriangle (int *lp1, int *lp2, int *lp3)
 	int		new[6];
 	int		z;
 	short	*zbuf;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	d = lp2[0] - lp1[0];
 	if (d < -1 || d > 1)
@@ -398,7 +408,9 @@ void D_PolysetUpdateTables (void)
 {
 	int		i;
 	byte	*s;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (r_affinetridesc.skinwidth != skinwidth ||
 		r_affinetridesc.pskin != skinstart)
 	{
@@ -420,6 +432,7 @@ D_PolysetScanLeftEdge
 */
 void D_PolysetScanLeftEdge (int height)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	do
 	{
@@ -494,6 +507,8 @@ void D_PolysetSetUpForLineScan(fixed8_t startvertu, fixed8_t startvertv,
 	int			tm, tn;
 	adivtab_t	*ptemp;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // TODO: implement x86 version
 
 	errorterm = -1;
@@ -532,6 +547,8 @@ void D_PolysetCalcGradients (int skinwidth)
 {
 	float	xstepdenominv, ystepdenominv, t0, t1;
 	float	p01_minus_p21, p11_minus_p21, p00_minus_p20, p10_minus_p20;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	p00_minus_p20 = r_p0[0] - r_p2[0];
 	p01_minus_p21 = r_p0[1] - r_p2[1];
@@ -594,6 +611,8 @@ void InitGel (byte *palette)
 	int		i;
 	int		r;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<256 ; i++)
 	{
 //		r = (palette[i*3]>>4);
@@ -620,6 +639,8 @@ void D_PolysetDrawSpans8 (spanpackage_t *pspanpackage)
 	int		llight;
 	int		lzi;
 	short	*lpz;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	do
 	{
@@ -686,6 +707,8 @@ void D_PolysetFillSpans8 (spanpackage_t *pspanpackage)
 {
 	int				color;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // FIXME: do z buffering
 
 	color = d_aflatcolor++;
@@ -724,6 +747,8 @@ void D_RasterizeAliasPolySmooth (void)
 	int				initialleftheight, initialrightheight;
 	int				*plefttop, *prighttop, *pleftbottom, *prightbottom;
 	int				working_lstepx, originalcount;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	plefttop = pedgetable->pleftedgevert0;
 	prighttop = pedgetable->prightedgevert0;
@@ -982,6 +1007,8 @@ void D_PolysetSetEdgeTable (void)
 {
 	int			edgetableindex;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	edgetableindex = 0;	// assume the vertices are already in
 						//  top to bottom order
 
@@ -1042,7 +1069,9 @@ void D_PolysetRecursiveDrawLine (int *lp1, int *lp2)
 	int		d;
 	int		new[6];
 	int 	ofs;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	d = lp2[0] - lp1[0];
 	if (d < -1 || d > 1)
 		goto split;
@@ -1082,7 +1111,9 @@ void D_PolysetRecursiveTriangle2 (int *lp1, int *lp2, int *lp3)
 {
 	int		d;
 	int		new[4];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	d = lp2[0] - lp1[0];
 	if (d < -1 || d > 1)
 		goto split;

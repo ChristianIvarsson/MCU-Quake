@@ -49,6 +49,8 @@ void R_Alias_clip_z (finalvert_t *pfv0, finalvert_t *pfv1, finalvert_t *out)
 	float		scale;
 	auxvert_t	*pav0, *pav1, avout;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	pav0 = &av[pfv0 - &fv[0][0]];
 	pav1 = &av[pfv1 - &fv[0][0]];
 
@@ -99,6 +101,8 @@ void R_Alias_clip_left (finalvert_t *pfv0, finalvert_t *pfv1, finalvert_t *out)
 	float		scale;
 	int			i;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (pfv0->v[1] >= pfv1->v[1])
 	{
 		scale = (float)(r_refdef.aliasvrect.x - pfv0->v[0]) /
@@ -122,6 +126,8 @@ void R_Alias_clip_right (finalvert_t *pfv0, finalvert_t *pfv1,
 	float		scale;
 	int			i;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (pfv0->v[1] >= pfv1->v[1])
 	{
 		scale = (float)(r_refdef.aliasvrectright - pfv0->v[0]) /
@@ -143,6 +149,8 @@ void R_Alias_clip_top (finalvert_t *pfv0, finalvert_t *pfv1, finalvert_t *out)
 {
 	float		scale;
 	int			i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (pfv0->v[1] >= pfv1->v[1])
 	{
@@ -166,6 +174,8 @@ void R_Alias_clip_bottom (finalvert_t *pfv0, finalvert_t *pfv1,
 {
 	float		scale;
 	int			i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (pfv0->v[1] >= pfv1->v[1])
 	{
@@ -193,7 +203,9 @@ int R_AliasClip (finalvert_t *in, finalvert_t *out, int flag, int count,
 {
 	int			i,j,k;
 	int			flags, oldflags;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	j = count-1;
 	k = 0;
 	for (i=0 ; i<count ; j = i, i++)
@@ -238,6 +250,8 @@ void R_AliasClipTriangle (mtriangle_t *ptri)
 	int				i, k, pingpong;
 	mtriangle_t		mtri;
 	unsigned		clipflags;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // copy vertexes and fix seam texture coordinates
 	if (ptri->facesfront)

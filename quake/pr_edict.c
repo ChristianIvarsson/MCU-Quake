@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // sv_edict.c -- entity dictionary
 
 #include "quakedef.h"
+#include "qfile.h"
 
 dprograms_t		*progs;
 dfunction_t		*pr_functions;
@@ -69,6 +70,7 @@ Sets everything to NULL
 */
 void ED_ClearEdict (edict_t *e)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	memset (&e->v, 0, progs->entityfields * 4);
 	e->free = false;
 }
@@ -88,6 +90,8 @@ edict_t *ED_Alloc (void)
 {
 	int			i;
 	edict_t		*e;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	for ( i=svs.maxclients+1 ; i<sv.num_edicts ; i++)
 	{
@@ -121,6 +125,8 @@ FIXME: walk all entities and NULL out references to this entity
 */
 void ED_Free (edict_t *ed)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	SV_UnlinkEdict (ed);		// unlink from world bsp
 
 	ed->free = true;
@@ -149,7 +155,9 @@ ddef_t *ED_GlobalAtOfs (int ofs)
 {
 	ddef_t		*def;
 	int			i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<progs->numglobaldefs ; i++)
 	{
 		def = &pr_globaldefs[i];
@@ -168,7 +176,9 @@ ddef_t *ED_FieldAtOfs (int ofs)
 {
 	ddef_t		*def;
 	int			i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<progs->numfielddefs ; i++)
 	{
 		def = &pr_fielddefs[i];
@@ -187,7 +197,9 @@ ddef_t *ED_FindField (char *name)
 {
 	ddef_t		*def;
 	int			i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<progs->numfielddefs ; i++)
 	{
 		def = &pr_fielddefs[i];
@@ -207,7 +219,9 @@ ddef_t *ED_FindGlobal (char *name)
 {
 	ddef_t		*def;
 	int			i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<progs->numglobaldefs ; i++)
 	{
 		def = &pr_globaldefs[i];
@@ -227,7 +241,9 @@ dfunction_t *ED_FindFunction (char *name)
 {
 	dfunction_t		*func;
 	int				i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<progs->numfunctions ; i++)
 	{
 		func = &pr_functions[i];
@@ -243,6 +259,8 @@ eval_t *GetEdictFieldValue(edict_t *ed, char *field)
 	ddef_t			*def = NULL;
 	int				i;
 	static int		rep = 0;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<GEFV_CACHESIZE ; i++)
 	{
@@ -277,12 +295,14 @@ PR_ValueString
 Returns a string describing *data in a type specific manner
 =============
 */
-char *PR_ValueString (etype_t type, eval_t *val)
+char *PR_ValueString (uint32_t type, eval_t *val)
 {
 	static char	line[256];
 	ddef_t		*def;
 	dfunction_t	*f;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	type &= ~DEF_SAVEGLOBAL;
 
 	switch (type)
@@ -329,12 +349,14 @@ Returns a string describing *data in a type specific manner
 Easier to parse than PR_ValueString
 =============
 */
-char *PR_UglyValueString (etype_t type, eval_t *val)
+char *PR_UglyValueString (uint32_t type, eval_t *val)
 {
 	static char	line[256];
 	ddef_t		*def;
 	dfunction_t	*f;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	type &= ~DEF_SAVEGLOBAL;
 
 	switch (type)
@@ -385,7 +407,9 @@ char *PR_GlobalString (int ofs)
 	ddef_t	*def;
 	void	*val;
 	static char	line[128];
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	val = (void *)&pr_globals[ofs];
 	def = ED_GlobalAtOfs(ofs);
 	if (!def)
@@ -409,7 +433,9 @@ char *PR_GlobalStringNoContents (int ofs)
 	int		i;
 	ddef_t	*def;
 	static char	line[128];
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	def = ED_GlobalAtOfs(ofs);
 	if (!def)
 		sprintf (line,"%i(???)", ofs);
@@ -440,6 +466,8 @@ void ED_Print (edict_t *ed)
 	int		i, j;
 	char	*name;
 	int		type;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (ed->free)
 	{
@@ -482,7 +510,7 @@ ED_Write
 For savegames
 =============
 */
-void ED_Write (FILE *f, edict_t *ed)
+void ED_Write (QFILE *f, edict_t *ed)
 {
 	ddef_t	*d;
 	int		*v;
@@ -490,11 +518,13 @@ void ED_Write (FILE *f, edict_t *ed)
 	char	*name;
 	int		type;
 
-	fprintf (f, "{\n");
+    DO_STACK_TRACE( __FUNCTION__ )
+
+	Qfprintf (f, "{\n");
 
 	if (ed->free)
 	{
-		fprintf (f, "}\n");
+		Qfprintf (f, "}\n");
 		return;
 	}
 	
@@ -515,15 +545,16 @@ void ED_Write (FILE *f, edict_t *ed)
 		if (j == type_size[type])
 			continue;
 	
-		fprintf (f,"\"%s\" ",name);
-		fprintf (f,"\"%s\"\n", PR_UglyValueString(d->type, (eval_t *)v));		
+		Qfprintf (f,"\"%s\" ",name);
+		Qfprintf (f,"\"%s\"\n", PR_UglyValueString(d->type, (eval_t *)v));		
 	}
 
-	fprintf (f, "}\n");
+	Qfprintf (f, "}\n");
 }
 
 void ED_PrintNum (int ent)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	ED_Print (EDICT_NUM(ent));
 }
 
@@ -537,7 +568,9 @@ For debugging, prints all the entities in the current server
 void ED_PrintEdicts (void)
 {
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_Printf ("%i entities\n", sv.num_edicts);
 	for (i=0 ; i<sv.num_edicts ; i++)
 		ED_PrintNum (i);
@@ -553,7 +586,9 @@ For debugging, prints a single edicy
 void ED_PrintEdict_f (void)
 {
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	i = Q_atoi (Cmd_Argv(1));
 	if (i >= sv.num_edicts)
 	{
@@ -575,6 +610,8 @@ void ED_Count (void)
 	int		i;
 	edict_t	*ent;
 	int		active, models, solid, step;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	active = models = solid = step = 0;
 	for (i=0 ; i<sv.num_edicts ; i++)
@@ -613,14 +650,16 @@ FIXME: need to tag constants, doesn't really work
 ED_WriteGlobals
 =============
 */
-void ED_WriteGlobals (FILE *f)
+void ED_WriteGlobals (QFILE *f)
 {
 	ddef_t		*def;
 	int			i;
 	char		*name;
 	int			type;
 
-	fprintf (f,"{\n");
+    DO_STACK_TRACE( __FUNCTION__ )
+
+	Qfprintf (f,"{\n");
 	for (i=0 ; i<progs->numglobaldefs ; i++)
 	{
 		def = &pr_globaldefs[i];
@@ -635,10 +674,10 @@ void ED_WriteGlobals (FILE *f)
 			continue;
 
 		name = pr_strings + def->s_name;		
-		fprintf (f,"\"%s\" ", name);
-		fprintf (f,"\"%s\"\n", PR_UglyValueString(type, (eval_t *)&pr_globals[def->ofs]));		
+		Qfprintf (f,"\"%s\" ", name);
+		Qfprintf (f,"\"%s\"\n", PR_UglyValueString(type, (eval_t *)&pr_globals[def->ofs]));		
 	}
-	fprintf (f,"}\n");
+	Qfprintf (f,"}\n");
 }
 
 /*
@@ -650,6 +689,8 @@ void ED_ParseGlobals (char *data)
 {
 	char	keyname[64];
 	ddef_t	*key;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	while (1)
 	{	
@@ -694,7 +735,9 @@ char *ED_NewString (char *string)
 {
 	char	*new, *new_p;
 	int		i,l;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	l = strlen(string) + 1;
 	new = Hunk_Alloc (l);
 	new_p = new;
@@ -733,7 +776,9 @@ qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s)
 	char	*v, *w;
 	void	*d;
 	dfunction_t	*func;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	d = (void *)((int *)base + key->ofs);
 	
 	switch (key->type & ~DEF_SAVEGLOBAL)
@@ -806,6 +851,8 @@ char *ED_ParseEdict (char *data, edict_t *ent)
 	qboolean	init;
 	char		keyname[256];
 	int			n;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	init = false;
 
@@ -907,7 +954,9 @@ void ED_LoadFromFile (char *data)
 	edict_t		*ent;
 	int			inhibit;
 	dfunction_t	*func;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = NULL;
 	inhibit = 0;
 	pr_global_struct->time = sv.time;
@@ -985,6 +1034,8 @@ PR_LoadProgs
 void PR_LoadProgs (void)
 {
 	int		i;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // flush the non-C variable lookup cache
 	for (i=0 ; i<GEFV_CACHESIZE ; i++)
@@ -1067,6 +1118,8 @@ PR_Init
 */
 void PR_Init (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	Cmd_AddCommand ("edict", ED_PrintEdict_f);
 	Cmd_AddCommand ("edicts", ED_PrintEdicts);
 	Cmd_AddCommand ("edictcount", ED_Count);
@@ -1088,6 +1141,7 @@ void PR_Init (void)
 
 edict_t *EDICT_NUM(int n)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (n < 0 || n >= sv.max_edicts)
 		Sys_Error ("EDICT_NUM: bad number %i", n);
 	return (edict_t *)((byte *)sv.edicts+ (n)*pr_edict_size);
@@ -1096,7 +1150,9 @@ edict_t *EDICT_NUM(int n)
 int NUM_FOR_EDICT(edict_t *e)
 {
 	int		b;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	b = (byte *)e - (byte *)sv.edicts;
 	b = b / pr_edict_size;
 	

@@ -86,6 +86,8 @@ void R_DrawCulledPolys (void)
 	surf_t			*s;
 	msurface_t		*pface;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	currententity = &cl_entities[0];
 
 	if (r_worldpolysbacktofront)
@@ -127,6 +129,8 @@ R_BeginEdgeFrame
 void R_BeginEdgeFrame (void)
 {
 	int		v;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	edge_p = r_edges;
 	edge_max = &r_edges[r_numallocatededges];
@@ -174,6 +178,8 @@ void R_InsertNewEdges (edge_t *edgestoadd, edge_t *edgelist)
 {
 	edge_t	*next_edge;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	do
 	{
 		next_edge = edgestoadd->next;
@@ -213,6 +219,7 @@ R_RemoveEdges
 */
 void R_RemoveEdges (edge_t *pedge)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	do
 	{
@@ -234,6 +241,8 @@ R_StepActiveU
 void R_StepActiveU (edge_t *pedge)
 {
 	edge_t		*pnext_edge, *pwedge;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	while (1)
 	{
@@ -305,6 +314,8 @@ void R_CleanupSpan ()
 	int		iu;
 	espan_t	*span;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // now that we've reached the right edge of the screen, we're done with any
 // unfinished surfaces, so emit a span for whatever's on top
 	surf = surfaces[1].next;
@@ -338,6 +349,8 @@ void R_LeadingEdgeBackwards (edge_t *edge)
 	espan_t			*span;
 	surf_t			*surf, *surf2;
 	int				iu;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // it's adding a new surface in, so find the correct place
 	surf = &surfaces[edge->surfs[1]];
@@ -418,6 +431,8 @@ void R_TrailingEdge (surf_t *surf, edge_t *edge)
 	espan_t			*span;
 	int				iu;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // don't generate a span if this is an inverted span, with the end
 // edge preceding the start edge (that is, we haven't seen the
 // start edge yet)
@@ -463,6 +478,8 @@ void R_LeadingEdge (edge_t *edge)
 	surf_t			*surf, *surf2;
 	int				iu;
 	double			fu, newzi, testzi, newzitop, newzibottom;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (edge->surfs[1])
 	{
@@ -590,6 +607,8 @@ void R_GenerateSpans (void)
 	edge_t			*edge;
 	surf_t			*surf;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_bmodelactive = 0;
 
 // clear active surfaces to just the background surface
@@ -628,6 +647,8 @@ void R_GenerateSpansBackward (void)
 {
 	edge_t			*edge;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	r_bmodelactive = 0;
 
 // clear active surfaces to just the background surface
@@ -663,9 +684,11 @@ Each surface has a linked list of its visible spans
 void R_ScanEdges (void)
 {
 	int		iv, bottom;
-	byte	basespans[MAXSPANS*sizeof(espan_t)+CACHE_SIZE];
+	static __RAM_1 byte	basespans[MAXSPANS*sizeof(espan_t)+CACHE_SIZE];
 	espan_t	*basespan_p;
 	surf_t	*s;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	basespan_p = (espan_t *)
 			((long)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));

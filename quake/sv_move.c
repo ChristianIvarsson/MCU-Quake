@@ -40,7 +40,9 @@ qboolean SV_CheckBottom (edict_t *ent)
 	trace_t	trace;
 	int		x, y;
 	float	mid, bottom;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	VectorAdd (ent->v.origin, ent->v.mins, mins);
 	VectorAdd (ent->v.origin, ent->v.maxs, maxs);
 
@@ -114,6 +116,8 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 	trace_t		trace;
 	int			i;
 	edict_t		*enemy;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // try the move	
 	VectorCopy (ent->v.origin, oldorg);
@@ -234,7 +238,9 @@ qboolean SV_StepDirection (edict_t *ent, float yaw, float dist)
 {
 	vec3_t		move, oldorigin;
 	float		delta;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent->v.ideal_yaw = yaw;
 	PF_changeyaw();
 	
@@ -267,6 +273,7 @@ SV_FixCheckBottom
 */
 void SV_FixCheckBottom (edict_t *ent)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 //	Con_Printf ("SV_FixCheckBottom\n");
 	
 	ent->v.flags = (int)ent->v.flags | FL_PARTIALGROUND;
@@ -286,6 +293,8 @@ void SV_NewChaseDir (edict_t *actor, edict_t *enemy, float dist)
 	float		deltax,deltay;
 	float			d[3];
 	float		tdir, olddir, turnaround;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	olddir = anglemod( (int)(actor->v.ideal_yaw/45)*45 );
 	turnaround = anglemod(olddir - 180);
@@ -373,7 +382,9 @@ SV_CloseEnough
 qboolean SV_CloseEnough (edict_t *ent, edict_t *goal, float dist)
 {
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<3 ; i++)
 	{
 		if (goal->v.absmin[i] > ent->v.absmax[i] + dist)
@@ -397,6 +408,8 @@ void SV_MoveToGoal (void)
 #ifdef QUAKE2
 	edict_t		*enemy;
 #endif
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	ent = PROG_TO_EDICT(pr_global_struct->self);
 	goal = PROG_TO_EDICT(ent->v.goalentity);

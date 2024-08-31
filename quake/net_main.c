@@ -94,6 +94,8 @@ double			net_time;
 
 double SetNetTime(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	net_time = Sys_FloatTime();
 	return net_time;
 }
@@ -110,6 +112,8 @@ The sequence and buffer fields will be filled in properly
 qsocket_t *NET_NewQSocket (void)
 {
 	qsocket_t	*sock;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (net_freeSockets == NULL)
 		return NULL;
@@ -150,6 +154,8 @@ void NET_FreeQSocket(qsocket_t *sock)
 {
 	qsocket_t	*s;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	// remove it from active list
 	if (sock == net_activeSockets)
 		net_activeSockets = net_activeSockets->next;
@@ -174,6 +180,8 @@ void NET_FreeQSocket(qsocket_t *sock)
 
 static void NET_Listen_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc () != 2)
 	{
 		Con_Printf ("\"listen\" is \"%u\"\n", listening ? 1 : 0);
@@ -194,6 +202,8 @@ static void NET_Listen_f (void)
 static void MaxPlayers_f (void)
 {
 	int 	n;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (Cmd_Argc () != 2)
 	{
@@ -234,6 +244,8 @@ static void NET_Port_f (void)
 {
 	int 	n;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc () != 2)
 	{
 		Con_Printf ("\"port\" is \"%u\"\n", net_hostport);
@@ -261,6 +273,8 @@ static void NET_Port_f (void)
 
 static void PrintSlistHeader(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	Con_Printf("Server          Map             Users\n");
 	Con_Printf("--------------- --------------- -----\n");
 	slistLastShown = 0;
@@ -270,6 +284,8 @@ static void PrintSlistHeader(void)
 static void PrintSlist(void)
 {
 	int n;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	for (n = slistLastShown; n < hostCacheCount; n++)
 	{
@@ -284,6 +300,8 @@ static void PrintSlist(void)
 
 static void PrintSlistTrailer(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (hostCacheCount)
 		Con_Printf("== end list ==\n\n");
 	else
@@ -293,6 +311,8 @@ static void PrintSlistTrailer(void)
 
 void NET_Slist_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (slistInProgress)
 		return;
 
@@ -314,6 +334,8 @@ void NET_Slist_f (void)
 
 static void Slist_Send(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (net_driverlevel=0; net_driverlevel < net_numdrivers; net_driverlevel++)
 	{
 		if (!slistLocal && net_driverlevel == 0)
@@ -330,6 +352,8 @@ static void Slist_Send(void)
 
 static void Slist_Poll(void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (net_driverlevel=0; net_driverlevel < net_numdrivers; net_driverlevel++)
 	{
 		if (!slistLocal && net_driverlevel == 0)
@@ -370,6 +394,8 @@ qsocket_t *NET_Connect (char *host)
 	qsocket_t		*ret;
 	int				n;
 	int				numdrivers = net_numdrivers;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	SetNetTime();
 
@@ -458,6 +484,8 @@ qsocket_t *NET_CheckNewConnections (void)
 {
 	qsocket_t	*ret;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	SetNetTime();
 
 	for (net_driverlevel=0 ; net_driverlevel<net_numdrivers; net_driverlevel++)
@@ -499,6 +527,8 @@ NET_Close
 */
 void NET_Close (qsocket_t *sock)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!sock)
 		return;
 
@@ -540,6 +570,8 @@ extern void PrintStats(qsocket_t *s);
 int	NET_GetMessage (qsocket_t *sock)
 {
 	int ret;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (!sock)
 		return -1;
@@ -625,7 +657,9 @@ struct
 int NET_SendMessage (qsocket_t *sock, sizebuf_t *data)
 {
 	int		r;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!sock)
 		return -1;
 
@@ -656,7 +690,9 @@ int NET_SendMessage (qsocket_t *sock, sizebuf_t *data)
 int NET_SendUnreliableMessage (qsocket_t *sock, sizebuf_t *data)
 {
 	int		r;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!sock)
 		return -1;
 
@@ -695,7 +731,9 @@ message to be transmitted.
 qboolean NET_CanSendMessage (qsocket_t *sock)
 {
 	int		r;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!sock)
 		return false;
 
@@ -726,6 +764,8 @@ int NET_SendToAll(sizebuf_t *data, int blocktime)
 	int			count = 0;
 	qboolean	state1 [MAX_SCOREBOARD];
 	qboolean	state2 [MAX_SCOREBOARD];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0, host_client = svs.clients ; i<svs.maxclients ; i++, host_client++)
 	{
@@ -806,6 +846,8 @@ void NET_Init (void)
 	int			i;
 	int			controlSocket;
 	qsocket_t	*s;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	if (COM_CheckParm("-playback"))
 	{
@@ -897,6 +939,8 @@ void		NET_Shutdown (void)
 {
 	qsocket_t	*sock;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	SetNetTime();
 
 	for (sock = net_activeSockets; sock; sock = sock->next)
@@ -929,6 +973,8 @@ void NET_Poll(void)
 	PollProcedure *pp;
 	qboolean	useModem;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!configRestored)
 	{
 		if (serialAvailable)
@@ -959,6 +1005,8 @@ void SchedulePollProcedure(PollProcedure *proc, double timeOffset)
 {
 	PollProcedure *pp, *prev;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	proc->nextTime = Sys_FloatTime() + timeOffset;
 	for (pp = pollProcedureList, prev = NULL; pp; pp = pp->next)
 	{
@@ -984,6 +1032,8 @@ void SchedulePollProcedure(PollProcedure *proc, double timeOffset)
 
 qboolean IsID(struct qsockaddr *addr)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (idgods.value == 0.0)
 		return false;
 

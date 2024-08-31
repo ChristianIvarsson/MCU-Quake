@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // must match definition in modelgen.h
 #ifndef SYNCTYPE_T
 #define SYNCTYPE_T
-typedef enum {ST_SYNC=0, ST_RAND } synctype_t;
+typedef enum {ST_SYNC=0, ST_RAND } u32synctype_t;
 #endif
 
 // TODO: shorten these?
@@ -76,7 +76,7 @@ typedef struct {
 	int			height;
 	int			numframes;
 	float		beamlength;
-	synctype_t	synctype;
+	uint32_t	synctype;
 } dsprite_t;
 
 #define SPR_VP_PARALLEL_UPRIGHT		0
@@ -99,10 +99,10 @@ typedef struct {
 	float	interval;
 } dspriteinterval_t;
 
-typedef enum { SPR_SINGLE=0, SPR_GROUP } spriteframetype_t;
+typedef enum { SPR_SINGLE=0, SPR_GROUP } u32spriteframetype_t;
 
 typedef struct {
-	spriteframetype_t	type;
+	uint32_t	type;
 } dspriteframetype_t;
 
 #define IDSPRITEHEADER	(('P'<<24)+('S'<<16)+('D'<<8)+'I')

@@ -70,6 +70,8 @@ void R_AddDynamicLights (void)
 	int			smax, tmax;
 	mtexinfo_t	*tex;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	surf = r_drawsurf.surf;
 	smax = (surf->extents[0]>>4)+1;
 	tmax = (surf->extents[1]>>4)+1;
@@ -156,6 +158,8 @@ void R_BuildLightMap (void)
 	int			maps;
 	msurface_t	*surf;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	surf = r_drawsurf.surf;
 
 	smax = (surf->extents[0]>>4)+1;
@@ -215,6 +219,8 @@ texture_t *R_TextureAnimation (texture_t *base)
 	int		reletive;
 	int		count;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (currententity->frame)
 	{
 		if (base->alternate_anims)
@@ -255,6 +261,8 @@ void R_DrawSurface (void)
 	unsigned char	*pcolumndest;
 	void			(*pblockdrawer)(void);
 	texture_t		*mt;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // calculate the lightings
 	R_BuildLightMap ();
@@ -345,6 +353,8 @@ void R_DrawSurfaceBlock8_mip0 (void)
 	int				v, i, b, lightstep, lighttemp, light;
 	unsigned char	pix, *psource, *prowdest;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	psource = pbasesource;
 	prowdest = prowdestbase;
 
@@ -394,6 +404,8 @@ void R_DrawSurfaceBlock8_mip1 (void)
 {
 	int				v, i, b, lightstep, lighttemp, light;
 	unsigned char	pix, *psource, *prowdest;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	psource = pbasesource;
 	prowdest = prowdestbase;
@@ -445,6 +457,8 @@ void R_DrawSurfaceBlock8_mip2 (void)
 	int				v, i, b, lightstep, lighttemp, light;
 	unsigned char	pix, *psource, *prowdest;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	psource = pbasesource;
 	prowdest = prowdestbase;
 
@@ -494,6 +508,8 @@ void R_DrawSurfaceBlock8_mip3 (void)
 {
 	int				v, i, b, lightstep, lighttemp, light;
 	unsigned char	pix, *psource, *prowdest;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	psource = pbasesource;
 	prowdest = prowdestbase;
@@ -549,6 +565,8 @@ void R_DrawSurfaceBlock16 (void)
 	int				lighttemp, lightstep, light;
 	unsigned short	*prowdest;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	prowdest = (unsigned short *)prowdestbase;
 
 	for (k=0 ; k<blocksize ; k++)
@@ -597,7 +615,9 @@ void R_GenTurbTile (pixel_t *pbasetex, void *pdest)
 	int		*turb;
 	int		i, j, s, t;
 	byte	*pd;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
 	pd = (byte *)pdest;
 
@@ -624,6 +644,8 @@ void R_GenTurbTile16 (pixel_t *pbasetex, void *pdest)
 	int				i, j, s, t;
 	unsigned short	*pd;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
 	pd = (unsigned short *)pdest;
 
@@ -646,6 +668,8 @@ R_GenTile
 */
 void R_GenTile (msurface_t *psurf, void *pdest)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (psurf->flags & SURF_DRAWTURB)
 	{
 		if (r_pixbytes == 1)

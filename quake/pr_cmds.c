@@ -34,7 +34,9 @@ char *PF_VarString (int	first)
 {
 	int		i;
 	static char out[256];
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	out[0] = 0;
 	for (i=first ; i<pr_argc ; i++)
 	{
@@ -58,7 +60,9 @@ void PF_error (void)
 {
 	char	*s;
 	edict_t	*ed;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	s = PF_VarString(0);
 	Con_Printf ("======SERVER ERROR in %s:\n%s\n"
 	,pr_strings + pr_xfunction->s_name,s);
@@ -82,7 +86,9 @@ void PF_objerror (void)
 {
 	char	*s;
 	edict_t	*ed;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	s = PF_VarString(0);
 	Con_Printf ("======OBJECT ERROR in %s:\n%s\n"
 	,pr_strings + pr_xfunction->s_name,s);
@@ -105,6 +111,7 @@ makevectors(vector)
 */
 void PF_makevectors (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	AngleVectors (G_VECTOR(OFS_PARM0), pr_global_struct->v_forward, pr_global_struct->v_right, pr_global_struct->v_up);
 }
 
@@ -121,7 +128,9 @@ void PF_setorigin (void)
 {
 	edict_t	*e;
 	float	*org;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	e = G_EDICT(OFS_PARM0);
 	org = G_VECTOR(OFS_PARM1);
 	VectorCopy (org, e->v.origin);
@@ -138,7 +147,9 @@ void SetMinMaxSize (edict_t *e, float *min, float *max, qboolean rotate)
 	float	a;
 	vec3_t	base, transformed;
 	int		i, j, k, l;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<3 ; i++)
 		if (min[i] > max[i])
 			PR_RunError ("backwards mins/maxs");
@@ -216,7 +227,9 @@ void PF_setsize (void)
 {
 	edict_t	*e;
 	float	*min, *max;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	e = G_EDICT(OFS_PARM0);
 	min = G_VECTOR(OFS_PARM1);
 	max = G_VECTOR(OFS_PARM2);
@@ -237,6 +250,8 @@ void PF_setmodel (void)
 	char	*m, **check;
 	model_t	*mod;
 	int		i;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	e = G_EDICT(OFS_PARM0);
 	m = G_STRING(OFS_PARM1);
@@ -274,6 +289,8 @@ void PF_bprint (void)
 {
 	char		*s;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	s = PF_VarString(0);
 	SV_BroadcastPrintf ("%s", s);
 }
@@ -292,7 +309,9 @@ void PF_sprint (void)
 	char		*s;
 	client_t	*client;
 	int			entnum;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	entnum = G_EDICTNUM(OFS_PARM0);
 	s = PF_VarString(1);
 	
@@ -323,7 +342,9 @@ void PF_centerprint (void)
 	char		*s;
 	client_t	*client;
 	int			entnum;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	entnum = G_EDICTNUM(OFS_PARM0);
 	s = PF_VarString(1);
 	
@@ -352,7 +373,9 @@ void PF_normalize (void)
 	float	*value1;
 	vec3_t	newvalue;
 	float	new;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	value1 = G_VECTOR(OFS_PARM0);
 
 	new = value1[0] * value1[0] + value1[1] * value1[1] + value1[2]*value1[2];
@@ -382,7 +405,9 @@ void PF_vlen (void)
 {
 	float	*value1;
 	float	new;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	value1 = G_VECTOR(OFS_PARM0);
 
 	new = value1[0] * value1[0] + value1[1] * value1[1] + value1[2]*value1[2];
@@ -402,7 +427,9 @@ void PF_vectoyaw (void)
 {
 	float	*value1;
 	float	yaw;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	value1 = G_VECTOR(OFS_PARM0);
 
 	if (value1[1] == 0 && value1[0] == 0)
@@ -430,7 +457,9 @@ void PF_vectoangles (void)
 	float	*value1;
 	float	forward;
 	float	yaw, pitch;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	value1 = G_VECTOR(OFS_PARM0);
 
 	if (value1[1] == 0 && value1[0] == 0)
@@ -470,7 +499,9 @@ random()
 void PF_random (void)
 {
 	float		num;
-		
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	num = (rand ()&0x7fff) / ((float)0x7fff);
 	
 	G_FLOAT(OFS_RETURN) = num;
@@ -488,7 +519,9 @@ void PF_particle (void)
 	float		*org, *dir;
 	float		color;
 	float		count;
-			
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	org = G_VECTOR(OFS_PARM0);
 	dir = G_VECTOR(OFS_PARM1);
 	color = G_FLOAT(OFS_PARM2);
@@ -510,6 +543,8 @@ void PF_ambientsound (void)
 	float		*pos;
 	float 		vol, attenuation;
 	int			i, soundnum;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	pos = G_VECTOR (OFS_PARM0);			
 	samp = G_STRING(OFS_PARM1);
@@ -562,7 +597,9 @@ void PF_sound (void)
 	edict_t		*entity;
 	int 		volume;
 	float attenuation;
-		
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	entity = G_EDICT(OFS_PARM0);
 	channel = G_FLOAT(OFS_PARM1);
 	sample = G_STRING(OFS_PARM2);
@@ -590,6 +627,7 @@ break()
 */
 void PF_break (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 Con_Printf ("break statement\n");
 *(int *)-4 = 0;	// dump to debugger
 //	PR_RunError ("break statement");
@@ -612,6 +650,8 @@ void PF_traceline (void)
 	trace_t	trace;
 	int		nomonsters;
 	edict_t	*ent;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	v1 = G_VECTOR(OFS_PARM0);
 	v2 = G_VECTOR(OFS_PARM1);
@@ -643,6 +683,8 @@ void PF_TraceToss (void)
 	trace_t	trace;
 	edict_t	*ent;
 	edict_t	*ignore;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	ent = G_EDICT(OFS_PARM0);
 	ignore = G_EDICT(OFS_PARM1);
@@ -677,6 +719,7 @@ scalar checkpos (entity, vector)
 */
 void PF_checkpos (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 }
 
 //============================================================================
@@ -686,10 +729,12 @@ byte	checkpvs[MAX_MAP_LEAFS/8];
 int PF_newcheckclient (int check)
 {
 	int		i;
-	byte	*pvs;
+	const byte	*pvs;
 	edict_t	*ent;
 	mleaf_t	*leaf;
 	vec3_t	org;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // cycle to the next one
 
@@ -756,7 +801,9 @@ void PF_checkclient (void)
 	mleaf_t	*leaf;
 	int		l;
 	vec3_t	view;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // find a new check if on a new frame
 	if (sv.time - sv.lastchecktime >= 0.1)
 	{
@@ -806,7 +853,9 @@ void PF_stuffcmd (void)
 	int		entnum;
 	char	*str;
 	client_t	*old;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	entnum = G_EDICTNUM(OFS_PARM0);
 	if (entnum < 1 || entnum > svs.maxclients)
 		PR_RunError ("Parm 0 not a client");
@@ -830,7 +879,9 @@ localcmd (string)
 void PF_localcmd (void)
 {
 	char	*str;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	str = G_STRING(OFS_PARM0);	
 	Cbuf_AddText (str);
 }
@@ -845,7 +896,9 @@ float cvar (string)
 void PF_cvar (void)
 {
 	char	*str;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	str = G_STRING(OFS_PARM0);
 	
 	G_FLOAT(OFS_RETURN) = Cvar_VariableValue (str);
@@ -861,7 +914,9 @@ float cvar (string)
 void PF_cvar_set (void)
 {
 	char	*var, *val;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	var = G_STRING(OFS_PARM0);
 	val = G_STRING(OFS_PARM1);
 	
@@ -884,6 +939,8 @@ void PF_findradius (void)
 	float	*org;
 	vec3_t	eorg;
 	int		i, j;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	chain = (edict_t *)sv.edicts;
 	
@@ -917,6 +974,7 @@ PF_dprint
 */
 void PF_dprint (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	Con_DPrintf ("%s",PF_VarString(0));
 }
 
@@ -925,6 +983,9 @@ char	pr_string_temp[128];
 void PF_ftos (void)
 {
 	float	v;
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	v = G_FLOAT(OFS_PARM0);
 	
 	if (v == (int)v)
@@ -937,12 +998,14 @@ void PF_ftos (void)
 void PF_fabs (void)
 {
 	float	v;
+    DO_STACK_TRACE( __FUNCTION__ )
 	v = G_FLOAT(OFS_PARM0);
 	G_FLOAT(OFS_RETURN) = fabs(v);
 }
 
 void PF_vtos (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	sprintf (pr_string_temp, "'%5.1f %5.1f %5.1f'", G_VECTOR(OFS_PARM0)[0], G_VECTOR(OFS_PARM0)[1], G_VECTOR(OFS_PARM0)[2]);
 	G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
 }
@@ -950,6 +1013,7 @@ void PF_vtos (void)
 #ifdef QUAKE2
 void PF_etos (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	sprintf (pr_string_temp, "entity %i", G_EDICTNUM(OFS_PARM0));
 	G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
 }
@@ -958,6 +1022,7 @@ void PF_etos (void)
 void PF_Spawn (void)
 {
 	edict_t	*ed;
+    DO_STACK_TRACE( __FUNCTION__ )
 	ed = ED_Alloc();
 	RETURN_EDICT(ed);
 }
@@ -965,7 +1030,7 @@ void PF_Spawn (void)
 void PF_Remove (void)
 {
 	edict_t	*ed;
-	
+    DO_STACK_TRACE( __FUNCTION__ )
 	ed = G_EDICT(OFS_PARM0);
 	ED_Free (ed);
 }
@@ -982,6 +1047,8 @@ void PF_Find (void)
 	edict_t	*first;
 	edict_t	*second;
 	edict_t	*last;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	first = second = last = (edict_t *)sv.edicts;
 	e = G_EDICTNUM(OFS_PARM0);
@@ -1028,6 +1095,8 @@ void PF_Find (void)
 	char	*s, *t;
 	edict_t	*ed;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	e = G_EDICTNUM(OFS_PARM0);
 	f = G_INT(OFS_PARM1);
 	s = G_STRING(OFS_PARM2);
@@ -1055,12 +1124,16 @@ void PF_Find (void)
 
 void PR_CheckEmptyString (char *s)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (s[0] <= ' ')
 		PR_RunError ("Bad string");
 }
 
 void PF_precache_file (void)
-{	// precache_file is only used to copy files with qcc, it does nothing
+{
+    DO_STACK_TRACE( __FUNCTION__ )
+	// precache_file is only used to copy files with qcc, it does nothing
 	G_INT(OFS_RETURN) = G_INT(OFS_PARM0);
 }
 
@@ -1068,7 +1141,9 @@ void PF_precache_sound (void)
 {
 	char	*s;
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (sv.state != ss_loading)
 		PR_RunError ("PF_Precache_*: Precache can only be done in spawn functions");
 		
@@ -1093,7 +1168,9 @@ void PF_precache_model (void)
 {
 	char	*s;
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (sv.state != ss_loading)
 		PR_RunError ("PF_Precache_*: Precache can only be done in spawn functions");
 		
@@ -1118,21 +1195,25 @@ void PF_precache_model (void)
 
 void PF_coredump (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	ED_PrintEdicts ();
 }
 
 void PF_traceon (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	pr_trace = true;
 }
 
 void PF_traceoff (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	pr_trace = false;
 }
 
 void PF_eprint (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	ED_PrintNum (G_EDICTNUM(OFS_PARM0));
 }
 
@@ -1150,7 +1231,9 @@ void PF_walkmove (void)
 	vec3_t	move;
 	dfunction_t	*oldf;
 	int 	oldself;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = PROG_TO_EDICT(pr_global_struct->self);
 	yaw = G_FLOAT(OFS_PARM0);
 	dist = G_FLOAT(OFS_PARM1);
@@ -1191,7 +1274,9 @@ void PF_droptofloor (void)
 	edict_t		*ent;
 	vec3_t		end;
 	trace_t		trace;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = PROG_TO_EDICT(pr_global_struct->self);
 
 	VectorCopy (ent->v.origin, end);
@@ -1224,7 +1309,9 @@ void PF_lightstyle (void)
 	char	*val;
 	client_t	*client;
 	int			j;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	style = G_FLOAT(OFS_PARM0);
 	val = G_STRING(OFS_PARM1);
 
@@ -1247,6 +1334,9 @@ void PF_lightstyle (void)
 void PF_rint (void)
 {
 	float	f;
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	f = G_FLOAT(OFS_PARM0);
 	if (f > 0)
 		G_FLOAT(OFS_RETURN) = (int)(f + 0.5);
@@ -1255,10 +1345,12 @@ void PF_rint (void)
 }
 void PF_floor (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	G_FLOAT(OFS_RETURN) = floor(G_FLOAT(OFS_PARM0));
 }
 void PF_ceil (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	G_FLOAT(OFS_RETURN) = ceil(G_FLOAT(OFS_PARM0));
 }
 
@@ -1271,7 +1363,9 @@ PF_checkbottom
 void PF_checkbottom (void)
 {
 	edict_t	*ent;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = G_EDICT(OFS_PARM0);
 
 	G_FLOAT(OFS_RETURN) = SV_CheckBottom (ent);
@@ -1285,7 +1379,9 @@ PF_pointcontents
 void PF_pointcontents (void)
 {
 	float	*v;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	v = G_VECTOR(OFS_PARM0);
 
 	G_FLOAT(OFS_RETURN) = SV_PointContents (v);	
@@ -1302,7 +1398,9 @@ void PF_nextent (void)
 {
 	int		i;
 	edict_t	*ent;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	i = G_EDICTNUM(OFS_PARM0);
 	while (1)
 	{
@@ -1337,10 +1435,12 @@ void PF_aim (void)
 	int		i, j;
 	trace_t	tr;
 	float	dist, bestdist;
-	float	speed;
-	
+	// float	speed;
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = G_EDICT(OFS_PARM0);
-	speed = G_FLOAT(OFS_PARM1);
+	// speed = G_FLOAT(OFS_PARM1);
 
 	VectorCopy (ent->v.origin, start);
 	start[2] += 20;
@@ -1413,7 +1513,9 @@ void PF_changeyaw (void)
 {
 	edict_t		*ent;
 	float		ideal, current, move, speed;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = PROG_TO_EDICT(pr_global_struct->self);
 	current = anglemod( ent->v.angles[1] );
 	ideal = ent->v.ideal_yaw;
@@ -1456,7 +1558,9 @@ void PF_changepitch (void)
 {
 	edict_t		*ent;
 	float		ideal, current, move, speed;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = G_EDICT(OFS_PARM0);
 	current = anglemod( ent->v.angles[0] );
 	ideal = ent->v.idealpitch;
@@ -1509,6 +1613,8 @@ sizebuf_t *WriteDest (void)
 	int		dest;
 	edict_t	*ent;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	dest = G_FLOAT(OFS_PARM0);
 	switch (dest)
 	{
@@ -1538,42 +1644,50 @@ sizebuf_t *WriteDest (void)
 
 void PF_WriteByte (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteByte (WriteDest(), G_FLOAT(OFS_PARM1));
 }
 
 void PF_WriteChar (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteChar (WriteDest(), G_FLOAT(OFS_PARM1));
 }
 
 void PF_WriteShort (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteShort (WriteDest(), G_FLOAT(OFS_PARM1));
 }
 
 void PF_WriteLong (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteLong (WriteDest(), G_FLOAT(OFS_PARM1));
 }
 
 void PF_WriteAngle (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteAngle (WriteDest(), G_FLOAT(OFS_PARM1));
 }
 
 void PF_WriteCoord (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteCoord (WriteDest(), G_FLOAT(OFS_PARM1));
 }
 
 void PF_WriteString (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteString (WriteDest(), G_STRING(OFS_PARM1));
 }
 
 
 void PF_WriteEntity (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	MSG_WriteShort (WriteDest(), G_EDICTNUM(OFS_PARM1));
 }
 
@@ -1585,7 +1699,9 @@ void PF_makestatic (void)
 {
 	edict_t	*ent;
 	int		i;
-	
+
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = G_EDICT(OFS_PARM0);
 
 	MSG_WriteByte (&sv.signon,svc_spawnstatic);
@@ -1618,6 +1734,8 @@ void PF_setspawnparms (void)
 	int		i;
 	client_t	*client;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	ent = G_EDICT(OFS_PARM0);
 	i = NUM_FOR_EDICT(ent);
 	if (i < 1 || i > svs.maxclients)
@@ -1640,6 +1758,8 @@ void PF_changelevel (void)
 #ifdef QUAKE2
 	char	*s1, *s2;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (svs.changelevel_issued)
 		return;
 	svs.changelevel_issued = true;
@@ -1653,6 +1773,8 @@ void PF_changelevel (void)
 		Cbuf_AddText (va("changelevel2 %s %s\n",s1, s2));
 #else
 	char	*s;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // make sure we don't issue two changelevels
 	if (svs.changelevel_issued)
@@ -1688,6 +1810,8 @@ void PF_WaterMove (void)
 	int			watertype;
 	float		drownlevel;
 	float		damage = 0.0;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	self = PROG_TO_EDICT(pr_global_struct->self);
 
@@ -1807,22 +1931,26 @@ void PF_WaterMove (void)
 
 void PF_sin (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	G_FLOAT(OFS_RETURN) = sin(G_FLOAT(OFS_PARM0));
 }
 
 void PF_cos (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	G_FLOAT(OFS_RETURN) = cos(G_FLOAT(OFS_PARM0));
 }
 
 void PF_sqrt (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	G_FLOAT(OFS_RETURN) = sqrt(G_FLOAT(OFS_PARM0));
 }
 #endif
 
 void PF_Fixme (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	PR_RunError ("unimplemented bulitin");
 }
 

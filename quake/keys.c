@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "quakedef.h"
 
+#include "qfile.h"
+
 /*
 
 key up events are sent even if in console mode
@@ -27,7 +29,7 @@ key up events are sent even if in console mode
 
 
 #define		MAXCMDLINE	256
-char	key_lines[32][MAXCMDLINE];
+__RAM_1  char	key_lines[32][MAXCMDLINE];
 int		key_linepos;
 int		shift_down=false;
 int		key_lastpress;
@@ -35,24 +37,24 @@ int		key_lastpress;
 int		edit_line=0;
 int		history_line=0;
 
-keydest_t	key_dest;
+uint32_t	key_dest;
 
 int		key_count;			// incremented every key event
 
-char	*keybindings[256];
-qboolean	consolekeys[256];	// if true, can't be rebound while in console
-qboolean	menubound[256];	// if true, can't be rebound while in menu
-int		keyshift[256];		// key to map to if shift held down in console
-int		key_repeats[256];	// if > 1, it is autorepeating
-qboolean	keydown[256];
+__RAM_1  char	*keybindings[256];
+__RAM_1  qboolean	consolekeys[256];	// if true, can't be rebound while in console
+__RAM_1  qboolean	menubound[256];	// if true, can't be rebound while in menu
+__RAM_1  int		keyshift[256];		// key to map to if shift held down in console
+__RAM_1  int		key_repeats[256];	// if > 1, it is autorepeating
+__RAM_1  qboolean	keydown[256];
 
 typedef struct
 {
-	char	*name;
-	int		keynum;
+	const char	*name;
+	const int		keynum;
 } keyname_t;
 
-keyname_t keynames[] =
+const keyname_t keynames[] =
 {
 	{"TAB", K_TAB},
 	{"ENTER", K_ENTER},
@@ -159,7 +161,9 @@ Interactive line editing and console scrollback
 void Key_Console (int key)
 {
 	const char	*cmd;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (key == K_ENTER)
 	{
 		Cbuf_AddText (key_lines[edit_line]+1);	// skip the >
@@ -283,6 +287,8 @@ void Key_Message (int key)
 {
 	static int chat_bufferlen = 0;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (key == K_ENTER)
 	{
 		if (team_message)
@@ -340,8 +346,10 @@ the K_* names are matched up.
 */
 int Key_StringToKeynum (char *str)
 {
-	keyname_t	*kn;
-	
+	const keyname_t	*kn;
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!str || !str[0])
 		return -1;
 	if (!str[1])
@@ -364,11 +372,13 @@ given keynum.
 FIXME: handle quote special (general escape sequence?)
 ===================
 */
-char *Key_KeynumToString (int keynum)
+const char *Key_KeynumToString (int keynum)
 {
-	keyname_t	*kn;	
+	const keyname_t	*kn;	
 	static	char	tinystr[2];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (keynum == -1)
 		return "<KEY NOT FOUND>";
 	if (keynum > 32 && keynum < 127)
@@ -395,7 +405,9 @@ void Key_SetBinding (int keynum, char *binding)
 {
 	char	*new;
 	int		l;
-			
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (keynum == -1)
 		return;
 
@@ -423,6 +435,8 @@ void Key_Unbind_f (void)
 {
 	int		b;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc() != 2)
 	{
 		Con_Printf ("unbind <key> : remove commands from a key\n");
@@ -442,7 +456,9 @@ void Key_Unbind_f (void)
 void Key_Unbindall_f (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=0 ; i<256 ; i++)
 		if (keybindings[i])
 			Key_SetBinding (i, "");
@@ -458,7 +474,9 @@ void Key_Bind_f (void)
 {
 	int			i, c, b;
 	char		cmd[1024];
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	c = Cmd_Argc();
 
 	if (c != 2 && c != 3)
@@ -501,14 +519,16 @@ Key_WriteBindings
 Writes lines containing "bind key value"
 ============
 */
-void Key_WriteBindings (FILE *f)
+void Key_WriteBindings (QFILE *f)
 {
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<256 ; i++)
 		if (keybindings[i])
 			if (*keybindings[i])
-				fprintf (f, "bind \"%s\" \"%s\"\n", Key_KeynumToString(i), keybindings[i]);
+				Qfprintf (f, "bind \"%s\" \"%s\"\n", Key_KeynumToString(i), keybindings[i]);
 }
 
 
@@ -520,6 +540,8 @@ Key_Init
 void Key_Init (void)
 {
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<32 ; i++)
 	{
@@ -600,6 +622,8 @@ void Key_Event (int key, qboolean down)
 {
 	char	*kb;
 	char	cmd[1024];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	keydown[key] = down;
 
@@ -749,6 +773,8 @@ Key_ClearStates
 void Key_ClearStates (void)
 {
 	int		i;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<256 ; i++)
 	{

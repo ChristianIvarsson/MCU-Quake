@@ -37,7 +37,9 @@ R_RotateSprite
 void R_RotateSprite (float beamlength)
 {
 	vec3_t	vec;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (beamlength == 0.0)
 		return;
 
@@ -61,6 +63,8 @@ int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 	float	dists[MAXWORKINGVERTS+1];
 	float	frac, clipdist, *pclipnormal;
 	float	*in, *instep, *outstep, *vert2;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	clipdist = pclipplane->dist;
 	pclipnormal = pclipplane->normal;
@@ -139,7 +143,9 @@ void R_SetupAndDrawSprite ()
 	float		dot, scale, *pv;
 	vec5_t		*pverts;
 	vec3_t		left, up, right, down, transformed, local;
-	emitpoint_t	outverts[MAXWORKINGVERTS+1], *pout;
+	static __RAM_1 emitpoint_t	outverts[MAXWORKINGVERTS+1], *pout;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	dot = DotProduct (r_spritedesc.vpn, modelorg);
 
@@ -240,6 +246,8 @@ mspriteframe_t *R_GetSpriteframe (msprite_t *psprite)
 	int				i, numframes, frame;
 	float			*pintervals, fullinterval, targettime, time;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	frame = currententity->frame;
 
 	if ((frame >= psprite->numframes) || (frame < 0))
@@ -289,6 +297,8 @@ void R_DrawSprite (void)
 	msprite_t		*psprite;
 	vec3_t			tvec;
 	float			dot, angle, sr, cr;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	psprite = currententity->model->cache.data;
 

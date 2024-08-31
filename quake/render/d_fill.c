@@ -33,6 +33,8 @@ void D_FillRect (vrect_t *rect, int color)
 	unsigned char	*dest;
 	unsigned		*ldest;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	rx = rect->x;
 	ry = rect->y;
 	rwidth = rect->width;

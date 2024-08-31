@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // comndef.h  -- general definitions
 
+#include "qfile.h"
+
 #if !defined BYTE_DEFINED
 typedef unsigned char 		byte;
 #define BYTE_DEFINED 1
@@ -122,19 +124,19 @@ float MSG_ReadAngle (void);
 //============================================================================
 
 void Q_memset (void *dest, int fill, int count);
-void Q_memcpy (void *dest, void *src, int count);
+void Q_memcpy (void *dest, const void *src, int count);
 int Q_memcmp (void *m1, void *m2, int count);
 void Q_strcpy (char *dest, const char *src);
 void Q_strncpy (char *dest, const char *src, int count);
 int Q_strlen (const char *str);
 char *Q_strrchr (char *s, char c);
-void Q_strcat (char *dest, char *src);
+void Q_strcat (char *dest, const char *src);
 int Q_strcmp (const char *s1, const char *s2);
 int Q_strncmp (const char *s1, const char *s2, int count);
-int Q_strcasecmp (char *s1, char *s2);
-int Q_strncasecmp (char *s1, char *s2, int n);
-int	Q_atoi (char *str);
-float Q_atof (char *str);
+int Q_strcasecmp (const char *s1, const char *s2);
+int Q_strncasecmp (const char *s1, const char *s2, int n);
+int	Q_atoi (const char *str);
+float Q_atof (const char *str);
 
 //============================================================================
 
@@ -145,11 +147,11 @@ char *COM_Parse (char *data);
 
 
 extern	int		com_argc;
-extern	char	**com_argv;
+extern	const char	**com_argv;
 
 int COM_CheckParm (char *parm);
 void COM_Init (char *path);
-void COM_InitArgv (int argc, char **argv);
+void COM_InitArgv (int argc, const char **argv);
 
 char *COM_SkipPath (char *pathname);
 void COM_StripExtension (char *in, char *out);
@@ -169,7 +171,7 @@ extern	char	com_gamedir[MAX_OSPATH];
 
 void COM_WriteFile (char *filename, void *data, int len);
 int COM_OpenFile (char *filename, int *hndl);
-int COM_FOpenFile (char *filename, FILE **file);
+int COM_FOpenFile (char *filename, QFILE **file);
 void COM_CloseFile (int h);
 
 byte *COM_LoadStackFile (char *path, void *buffer, int bufsize);
@@ -181,3 +183,11 @@ void COM_LoadCacheFile (char *path, struct cache_user_s *cu);
 extern	struct cvar_s	registered;
 
 extern qboolean		standard_quake, rogue, hipnotic;
+
+#ifdef TRACE_STACK
+
+void COM_InitStackTrace(const void *stPtr);
+void COM_CaptureStack(void *stPtr, const char *fName);
+unsigned long COM_GetMaxStack(void);
+
+#endif

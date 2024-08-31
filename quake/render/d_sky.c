@@ -37,6 +37,8 @@ void D_Sky_uv_To_st (int u, int v, fixed16_t *s, fixed16_t *t)
 	float	wu, wv, temp;
 	vec3_t	end;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (r_refdef.vrect.width >= r_refdef.vrect.height)
 		temp = (float)r_refdef.vrect.width;
 	else
@@ -68,6 +70,8 @@ void D_DrawSkyScans8 (espan_t *pspan)
 	unsigned char	*pdest;
 	fixed16_t		s, t, snext, tnext, sstep, tstep;
 	int				spancountminus1;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	sstep = 0;	// keep compiler happy
 	tstep = 0;	// ditto

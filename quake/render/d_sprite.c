@@ -45,6 +45,8 @@ void D_SpriteDrawSpans (sspan_t *pspan)
 	byte		btemp;
 	short		*pz;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	sstep = 0;	// keep compiler happy
 	tstep = 0;	// ditto
 
@@ -204,6 +206,8 @@ void D_SpriteScanLeftEdge (void)
 	float		du, dv, vtop, vbottom, slope;
 	fixed16_t	u, u_step;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	pspan = sprite_spans;
 	i = minindex;
 	if (i == 0)
@@ -265,6 +269,8 @@ void D_SpriteScanRightEdge (void)
 	sspan_t		*pspan;
 	float		du, dv, vtop, vbottom, slope, uvert, unext, vvert, vnext;
 	fixed16_t	u, u_step;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	pspan = sprite_spans;
 	i = minindex;
@@ -345,6 +351,8 @@ void D_SpriteCalculateGradients (void)
 	vec3_t		p_normal, p_saxis, p_taxis, p_temp1;
 	float		distinv;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	TransformVector (r_spritedesc.vpn, p_normal);
 	TransformVector (r_spritedesc.vright, p_saxis);
 	TransformVector (r_spritedesc.vup, p_taxis);
@@ -391,7 +399,9 @@ void D_DrawSprite (void)
 	int			i, nump;
 	float		ymin, ymax;
 	emitpoint_t	*pverts;
-	sspan_t		spans[MAXHEIGHT+1];
+	static __RAM_1 sspan_t		spans[MAXHEIGHT+1];
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	sprite_spans = spans;
 

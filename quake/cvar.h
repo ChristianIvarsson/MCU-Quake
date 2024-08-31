@@ -53,6 +53,8 @@ Cvars are restricted from having the same names as commands to keep this
 interface from being ambiguous.
 */
 
+#include "qfile.h"
+
 typedef struct cvar_s
 {
 	const char * const name;
@@ -88,7 +90,7 @@ qboolean Cvar_Command (void);
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
 
-void 	Cvar_WriteVariables (FILE *f);
+void 	Cvar_WriteVariables (QFILE *f);
 // Writes lines containing "set variable value" for all variables
 // with the archive flag set to true.
 

@@ -52,6 +52,7 @@ bind g "impulse 5 ; +attack ; wait ; -attack ; impulse 2"
 */
 void Cmd_Wait_f (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	cmd_wait = true;
 }
 
@@ -72,6 +73,7 @@ Cbuf_Init
 */
 void Cbuf_Init (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	SZ_Alloc (&cmd_text, 8192);		// space for commands and script files
 }
 
@@ -86,7 +88,9 @@ Adds command text at the end of the buffer
 void Cbuf_AddText (char *text)
 {
 	int		l;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	l = Q_strlen (text);
 
 	if (cmd_text.cursize + l >= cmd_text.maxsize)
@@ -112,6 +116,8 @@ void Cbuf_InsertText (char *text)
 {
 	char	*temp;
 	int		templen;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 // copy off any commands still remaining in the exec buffer
 	templen = cmd_text.cursize;
@@ -146,7 +152,9 @@ void Cbuf_Execute (void)
 	char	*text;
 	char	line[1024];
 	int		quotes;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	while (cmd_text.cursize)
 	{
 // find a \n or ; line break
@@ -215,7 +223,9 @@ void Cmd_StuffCmds_f (void)
 	int		i, j;
 	int		s;
 	char	*text, *build, c;
-		
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc () != 1)
 	{
 		Con_Printf ("stuffcmds : execute command line parameters\n");
@@ -285,6 +295,8 @@ void Cmd_Exec_f (void)
 	char	*f;
 	int		mark;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (Cmd_Argc () != 2)
 	{
 		Con_Printf ("exec <filename> : execute a script file\n");
@@ -315,7 +327,9 @@ Just prints the rest of the line to the console
 void Cmd_Echo_f (void)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (i=1 ; i<Cmd_Argc() ; i++)
 		Con_Printf ("%s ",Cmd_Argv(i));
 	Con_Printf ("\n");
@@ -332,7 +346,9 @@ Creates a new command that executes a command string (possibly ; seperated)
 char *CopyString (char *in)
 {
 	char	*out;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	out = Z_Malloc (strlen(in)+1);
 	strcpy (out, in);
 	return out;
@@ -427,6 +443,7 @@ Cmd_Init
 */
 void Cmd_Init (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 //
 // register our commands
 //
@@ -445,6 +462,7 @@ Cmd_Argc
 */
 int		Cmd_Argc (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return cmd_argc;
 }
 
@@ -455,6 +473,7 @@ Cmd_Argv
 */
 char	*Cmd_Argv (int arg)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	if ( (unsigned)arg >= cmd_argc )
 		return cmd_null_string;
 	return cmd_argv[arg];	
@@ -467,6 +486,7 @@ Cmd_Args
 */
 char		*Cmd_Args (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
 	return cmd_args;
 }
 
@@ -481,7 +501,9 @@ Parses the given string into command line tokens.
 void Cmd_TokenizeString (char *text)
 {
 	int		i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 // clear the args from the last string
 	for (i=0 ; i<cmd_argc ; i++)
 		Z_Free (cmd_argv[i]);
@@ -532,7 +554,9 @@ Cmd_AddCommand
 void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 {
 	cmd_function_t	*cmd;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (host_initialized)	// because hunk allocation would get stomped
 		Sys_Error ("Cmd_AddCommand after host_initialized");
 		
@@ -569,6 +593,8 @@ qboolean	Cmd_Exists (const char *cmd_name)
 {
 	cmd_function_t	*cmd;
 
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
 		if (!Q_strcmp (cmd_name,cmd->name))
@@ -589,7 +615,9 @@ char *Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
 	int				len;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	len = Q_strlen(partial);
 	
 	if (!len)
@@ -615,6 +643,8 @@ void	Cmd_ExecuteString (char *text, cmd_source_t src)
 {	
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
+
+	DO_STACK_TRACE( __FUNCTION__ )
 
 	cmd_source = src;
 	Cmd_TokenizeString (text);
@@ -659,6 +689,8 @@ Sends the entire command line over to the server
 */
 void Cmd_ForwardToServer (void)
 {
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cls.state != ca_connected)
 	{
 		Con_Printf ("Can't \"%s\", not connected\n", Cmd_Argv(0));
@@ -693,7 +725,9 @@ where the given parameter apears, or 0 if not present
 int Cmd_CheckParm (char *parm)
 {
 	int i;
-	
+
+	DO_STACK_TRACE( __FUNCTION__ )
+
 	if (!parm)
 		Sys_Error ("Cmd_CheckParm: NULL");
 

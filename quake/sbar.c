@@ -74,6 +74,8 @@ Tab key down
 */
 void Sbar_ShowScores (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (sb_showscores)
 		return;
 	sb_showscores = true;
@@ -89,6 +91,8 @@ Tab key up
 */
 void Sbar_DontShowScores (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	sb_showscores = false;
 	sb_updates = 0;
 }
@@ -100,6 +104,7 @@ Sbar_Changed
 */
 void Sbar_Changed (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	sb_updates = 0;	// update next frame
 }
 
@@ -111,6 +116,8 @@ Sbar_Init
 void Sbar_Init (void)
 {
 	int		i;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	for (i=0 ; i<10 ; i++)
 	{
@@ -259,6 +266,8 @@ Sbar_DrawPic
 */
 void Sbar_DrawPic (int x, int y, qpic_t *pic)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cl.gametype == GAME_DEATHMATCH)
 		Draw_Pic (x /* + ((vid.width - 320)>>1)*/, y + (vid.height-SBAR_HEIGHT), pic);
 	else
@@ -272,6 +281,8 @@ Sbar_DrawTransPic
 */
 void Sbar_DrawTransPic (int x, int y, qpic_t *pic)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cl.gametype == GAME_DEATHMATCH)
 		Draw_TransPic (x /*+ ((vid.width - 320)>>1)*/, y + (vid.height-SBAR_HEIGHT), pic);
 	else
@@ -287,6 +298,8 @@ Draws one solid graphics character
 */
 void Sbar_DrawCharacter (int x, int y, int num)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (cl.gametype == GAME_DEATHMATCH)
 		Draw_Character ( x /*+ ((vid.width - 320)>>1) */ + 4 , y + vid.height-SBAR_HEIGHT, num);
 	else
@@ -300,6 +313,7 @@ Sbar_DrawString
 */
 void Sbar_DrawString (int x, int y, char *str)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	if (cl.gametype == GAME_DEATHMATCH)
 		Draw_String (x /*+ ((vid.width - 320)>>1)*/, y+ vid.height-SBAR_HEIGHT, str);
 	else
@@ -316,6 +330,8 @@ int Sbar_itoa (int num, char *buf)
 	char	*str;
 	int		pow10;
 	int		dig;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	str = buf;
 
@@ -352,6 +368,8 @@ void Sbar_DrawNum (int x, int y, int num, int digits, int color)
 	char			str[12];
 	char			*ptr;
 	int				l, frame;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	l = Sbar_itoa (num, str);
 	ptr = str;
@@ -392,6 +410,8 @@ void Sbar_SortFrags (void)
 {
 	int		i, j, k;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 // sort by frags
 	scoreboardlines = 0;
 	for (i=0 ; i<cl.maxclients ; i++)
@@ -415,6 +435,7 @@ void Sbar_SortFrags (void)
 
 int	Sbar_ColorForMap (int m)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
 	return m < 128 ? m + 8 : m + 8;
 }
 
@@ -428,6 +449,8 @@ void Sbar_UpdateScoreboard (void)
 	int		i, k;
 	int		top, bottom;
 	scoreboard_t	*s;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	Sbar_SortFrags ();
 
@@ -460,6 +483,8 @@ void Sbar_SoloScoreboard (void)
 	int		minutes, seconds, tens, units;
 	int		l;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	sprintf (str,"Monsters:%3i /%3i", cl.stats[STAT_MONSTERS], cl.stats[STAT_TOTALMONSTERS]);
 	Sbar_DrawString (8, 4, str);
 
@@ -486,6 +511,8 @@ Sbar_DrawScoreboard
 */
 void Sbar_DrawScoreboard (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	Sbar_SoloScoreboard ();
 	if (cl.gametype == GAME_DEATHMATCH)
 		Sbar_DeathmatchOverlay ();
@@ -549,6 +576,8 @@ void Sbar_DrawInventory (void)
 	char	num[6];
 	float	time;
 	int		flashon;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (rogue)
 	{
@@ -772,6 +801,8 @@ void Sbar_DrawFrags (void)
 	char			num[12];
 	scoreboard_t	*s;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	Sbar_SortFrags ();
 
 // draw the text
@@ -828,6 +859,8 @@ Sbar_DrawFace
 void Sbar_DrawFace (void)
 {
 	int		f, anim;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 // PGM 01/19/97 - team color drawing
 // PGM 03/02/97 - fixed so color swatch only appears in CTF modes
@@ -925,6 +958,8 @@ Sbar_Draw
 */
 void Sbar_Draw (void)
 {
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	if (scr_con_current == vid.height)
 		return;		// console is full screen
 
@@ -1057,6 +1092,8 @@ void Sbar_IntermissionNumber (int x, int y, int num, int digits, int color)
 	char			*ptr;
 	int				l, frame;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	l = Sbar_itoa (num, str);
 	ptr = str;
 	if (l > digits)
@@ -1091,6 +1128,8 @@ void Sbar_DeathmatchOverlay (void)
 	int				x, y, f;
 	char			num[12];
 	scoreboard_t	*s;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	scr_copyeverything = 1;
 	scr_fullupdate = 0;
@@ -1166,13 +1205,15 @@ Sbar_DeathmatchOverlay
 */
 void Sbar_MiniDeathmatchOverlay (void)
 {
-	qpic_t			*pic;
-	int				i, k, l;
+	// qpic_t			*pic;
+	int				i, k; // , l;
 	int				top, bottom;
 	int				x, y, f;
 	char			num[12];
 	scoreboard_t	*s;
 	int				numlines;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	if (vid.width < 512 || !sb_lines)
 		return;
@@ -1184,7 +1225,7 @@ void Sbar_MiniDeathmatchOverlay (void)
 	Sbar_SortFrags ();
 
 // draw the text
-	l = scoreboardlines;
+	// l = scoreboardlines;
 	y = vid.height - sb_lines;
 	numlines = sb_lines/8;
 	if (numlines < 3)
@@ -1272,6 +1313,8 @@ void Sbar_IntermissionOverlay (void)
 	int		dig;
 	int		num;
 
+    DO_STACK_TRACE( __FUNCTION__ )
+
 	scr_copyeverything = 1;
 	scr_fullupdate = 0;
 
@@ -1315,6 +1358,8 @@ Sbar_FinaleOverlay
 void Sbar_FinaleOverlay (void)
 {
 	qpic_t	*pic;
+
+    DO_STACK_TRACE( __FUNCTION__ )
 
 	scr_copyeverything = 1;
 
