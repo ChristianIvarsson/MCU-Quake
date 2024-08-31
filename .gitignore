@@ -4,3 +4,13 @@ targets/pico2/build/*
 !targets/pico2/build/*.sh
 !targets/pico2/build/*.bat
 !targets/pico2/build/*.cfg
+
+# We only want the actual libraries
+targets/pico2/external/picolcd/example/*
+targets/pico2/external/picolcd/.gitignore
+
+# Hide some junk
+targets/rpi/out/*
+targets/rpi/id1/*
+targets/rpi/quake
+targets/rpi/quake.map
