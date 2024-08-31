@@ -17,30 +17,40 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// vid_null.c -- null video driver to aid porting efforts
 
-#include "../../../../quake/quakedef.h"
-#include "../../../../quake/render/d_local.h"
+#include <stdio.h>
+#include <stdint.h>
 
-extern viddef_t	vid;				// global video state
+#include "pico/stdlib.h"
+#include "hardware/dma.h"
 
-#define	BASEWIDTH	160
-#define	BASEHEIGHT	120
+#include "../video.h"
 
-byte	vid_buffer[BASEWIDTH*BASEHEIGHT]; // 75 K
-short	zbuffer[BASEWIDTH*BASEHEIGHT]; // 150 K
+extern viddef_t	vid; // global video state
 
-// byte	surfcache[256*1024];
+byte vid_buffer[ BASEWIDTH * BASEHEIGHT ] __attribute__((aligned(4)));   // 75 K x 2
+byte d_buffer[ BASEWIDTH * BASEHEIGHT ] __attribute__((aligned(4))); 
 
-unsigned short	d_8to16table[256]; // 512 B
-// unsigned	d_8to24table[256];
+__RAM_1 static short zbuffer[ BASEWIDTH * BASEHEIGHT ]; // 150 K
+
+unsigned short d_8to16table[ 256 ]; // 512 B
+// unsigned d_8to24table[256];
+
+// PSRAM is waaay too slow for this..
+// Min is 256k
+__RAM_1 byte surfcache[ 512 * 1024 ];
+
+static int dma_chan = -1;
 
 void VID_SetPalette(unsigned char *palette)
 {
-}
-
-void VID_ShiftPalette(unsigned char *palette)
-{
+    for (uint32_t i = 0; i < 256; i++)
+	{
+    	uint8_t r = (*palette++ >>  3) & 31;
+    	uint8_t g = (*palette++ >>  2) & 63;
+    	uint8_t b = (*palette++ >>  3) & 31;
+    	d_8to16table[ i ] = r << 11 | g << 5 | b;
+    }
 }
 
 void VID_Init(unsigned char *palette)
@@ -55,34 +65,44 @@ void VID_Init(unsigned char *palette)
 	vid.rowbytes = vid.conrowbytes = BASEWIDTH;
 	
 	d_pzbuffer = zbuffer;
-	// D_InitCaches (surfcache, sizeof(surfcache));
+	D_InitCaches (surfcache, sizeof(surfcache));
+
+	VID_SetPalette( palette );
+
+    dma_chan = dma_claim_unused_channel(true);
+
+    dma_channel_config c = dma_channel_get_default_config(dma_chan);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_32);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_write_increment(&c, true);
+
+    dma_channel_configure(
+        dma_chan,      // Channel to be configured
+        &c,            // The configuration we just created
+        d_buffer,      // The initial write address
+        vid_buffer,    // The initial read address
+        0,             // Number of transfers
+        false          // Start immediately.
+    );
 }
 
-void	VID_Shutdown (void)
+void VID_Update(vrect_t *rects)
 {
+	dma_channel_hw_addr(dma_chan)->write_addr = (uintptr_t) d_buffer;
+	dma_channel_transfer_from_buffer_now(dma_chan, vid_buffer, sizeof(vid_buffer) / 4);
+	// dma_channel_wait_for_finish_blocking( dma_chan );
 }
 
-void	VID_Update (vrect_t *rects)
+void VID_ShiftPalette(unsigned char *palette)
 {
+	VID_SetPalette( palette );
 }
 
-/*
-================
-D_BeginDirectRect
-================
-*/
-void D_BeginDirectRect (int x, int y, byte *pbitmap, int width, int height)
+void VID_Shutdown(void)
 {
+	if ( dma_chan >= 0 )
+		dma_channel_unclaim( dma_chan );
 }
 
-
-/*
-================
-D_EndDirectRect
-================
-*/
-void D_EndDirectRect (int x, int y, int width, int height)
-{
-}
-
-
+void D_BeginDirectRect (int x, int y, byte *pbitmap, int width, int height) {}
+void D_EndDirectRect (int x, int y, int width, int height) {}

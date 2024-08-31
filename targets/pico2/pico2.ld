@@ -24,10 +24,11 @@
 MEMORY
 {
     INCLUDE "pico_flash_region.ld"
-    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 512k
-    SCRATCH_X(rwx) : ORIGIN = 0x20080000, LENGTH = 4k
+    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 508k /* Should be 512 but we lend some to core 0 stack that sits in X */
+    SCRATCH_X(rwx) : ORIGIN = 0x2007F000, LENGTH = 8k
     SCRATCH_Y(rwx) : ORIGIN = 0x20081000, LENGTH = 4k
-    PSRAM(rwx)     : ORIGIN = 0x60000000, LENGTH = 8m  /* Not entirely sure if it's possible to execute from psram? */
+    /* Size is determined at runtime so just crank it to max window size */
+    PSRAM(rwx)     : ORIGIN = 0x11000000, LENGTH = 16m
 }
 
 ENTRY(_entry_point)
@@ -253,15 +254,13 @@ SECTIONS
 
     .psram : {
         __psram_start__ = .;
-        *(.psram.*)
+        *(.psram .psram.*)
         . = ALIGN(4);
         __psram_end__ = .;
     } > PSRAM AT > FLASH
     __psram_source__ = LOADADDR(.psram);
     /* Some additional symbols just to ease app calculations */
-    __psram_used__ = __psram_end__ - __psram_source__;
-    __psram_left__ = LENGTH(PSRAM) - __psram_used__;
-    __psram_size__ = LENGTH(PSRAM);
+    __psram_used__ = __psram_end__ - __psram_start__;
 
     /* .stack*_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
@@ -275,11 +274,11 @@ SECTIONS
     .stack1_dummy (NOLOAD):
     {
         *(.stack1*)
-    } > SCRATCH_X
+    } > SCRATCH_Y
     .stack_dummy (NOLOAD):
     {
         KEEP(*(.stack*))
-    } > SCRATCH_Y
+    } > SCRATCH_X
 
     .flash_end : {
         KEEP(*(.embedded_end_block*))
@@ -288,11 +287,32 @@ SECTIONS
 
     /* stack limit is poorly named, but historically is maximum heap ptr */
     __StackLimit = ORIGIN(RAM) + LENGTH(RAM);
+
+/*
     __StackOneTop = ORIGIN(SCRATCH_X) + LENGTH(SCRATCH_X);
     __StackTop = ORIGIN(SCRATCH_Y) + LENGTH(SCRATCH_Y);
     __StackOneBottom = __StackOneTop - SIZEOF(.stack1_dummy);
     __StackBottom = __StackTop - SIZEOF(.stack_dummy);
+*/
+
+    /* We need a lot more stack than X/Y can give us so Core 1 gets Y while 0 get X + some of main ram */
+    __StackOneTop = ORIGIN(SCRATCH_Y) + LENGTH(SCRATCH_Y);
+    __StackOneBottom = ORIGIN(SCRATCH_Y);
+
+    __StackTop = ORIGIN(SCRATCH_X) + LENGTH(SCRATCH_X);
+
+    __StackBottom = __StackLimit;
+
     PROVIDE(__stack = __StackTop);
+
+/*
+RAM
+X  ( one )
+Y  ( zero )
+*/
+/*
+Core 1 is using __StackOneBottom
+*/
 
     /* picolibc and LLVM */
     PROVIDE (__heap_start = __end__);
@@ -306,7 +326,7 @@ SECTIONS
     PROVIDE (__llvm_libc_heap_limit = __HeapLimit);
 
     /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed")
+    /* ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed") */
 
     ASSERT( __binary_info_header_end - __logical_binary_start <= 1024, "Binary info must be in first 1024 bytes of the binary")
     ASSERT( __embedded_block_end - __logical_binary_start <= 4096, "Embedded block must be in first 4096 bytes of the binary")

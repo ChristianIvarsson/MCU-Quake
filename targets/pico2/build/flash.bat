@@ -1,1 +1,1 @@
-openocd -f flash.cfg
+openocd_pi -f flash.cfg

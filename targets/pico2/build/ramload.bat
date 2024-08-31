@@ -1,1 +1,1 @@
-openocd -f ramload.cfg
+openocd_pi -f ramload.cfg
